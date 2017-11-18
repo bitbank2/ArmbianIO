@@ -1,0 +1,60 @@
+//
+// ArmbianIO test program
+//
+// Copyright (c) 2017 Larry Bank
+// email: bitbank@pobox.com
+// Project started 11/15/2017
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include <armbianio.h>
+
+int main(int argc, char* argv[])
+{
+int i, rc;
+const char *szBoardName;
+
+	// Initialize the library
+	rc = AIOInit();
+	if (rc == 0)
+	{
+		printf("Problem initializing ArmbianIO library\n");
+		return 0;
+	}
+	szBoardName = AIOGetBoardName();
+	printf("Running on a %s\n", szBoardName);
+	if (AIOHasButton())
+	{
+		for (i=0; i<100; i++)
+		{
+			printf("Button = %d\n", AIOReadButton());
+			usleep(500000);
+    		}
+	}
+	else
+	{
+		printf("No on-board button\n");
+	}
+	// Quit library and free resources
+	AIOShutdown();
+
+   return 0;
+} /* main() */
