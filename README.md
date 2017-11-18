@@ -16,6 +16,9 @@ to correctly connect devices on every board supported by Armbian. This also
 allows for boards with additional GPIOs such as the Orange Pi Zero which has
 two more usable pins on its TTY header.
 
+NB: ArmbianIO requires Armbian with a mainline (4.x) kernel. Older versions
+don't have the unique board identifier (/run/machine.id)
+
 Features
 --------
 - Will support all SBCs supported by Armbian (soon)
