@@ -386,7 +386,6 @@ int timeout = 3000; // 3 seconds
 		fdset[0].fd = gpio_fd;
 		fdset[0].events = POLLPRI;
 		rc = poll(&fdset[0], 1, timeout);
-		printf("Poll returned %d\n", rc);
 		if (rc < 0) return NULL;
 		// clear the interrupt by reading the data
 		lseek(gpio_fd, 0, SEEK_SET);
