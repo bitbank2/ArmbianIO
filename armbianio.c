@@ -378,7 +378,7 @@ int timeout = 3000; // 3 seconds
 	if (gpio_fd < 0) // something went wrong
 		return NULL;
 	lseek(gpio_fd, 0, SEEK_SET);
-	read(gpio_fd, szTemp, 64); // initial read to prevent false interrupt
+	rc = read(gpio_fd, szTemp, 64); // initial read to prevent false interrupt
 
 	while (1)
 	{
