@@ -27,6 +27,11 @@
 #include <time.h>
 #include <armbianio.h>
 
+void GPIOCallback(int iValue)
+{
+	printf("Pin changed, new value = %d\n", iValue);
+} /* GPIOCallback() */
+
 int main(int argc, char* argv[])
 {
 int i, rc;
@@ -42,6 +47,7 @@ const char *szBoardName;
 	szBoardName = AIOGetBoardName();
 	printf("Running on a %s\n", szBoardName);
 	if (AIOHasButton())
+#ifdef POLL_BUTTON
 	{
 		for (i=0; i<100; i++)
 		{
@@ -49,6 +55,17 @@ const char *szBoardName;
 			usleep(500000);
     		}
 	}
+#else // use interrupts
+	{
+		AIOAddGPIOCallback(40, EDGE_RISING, GPIOCallback);
+		// wait for presses
+		for (i=0; i<100; i++)
+		{
+			usleep(1000000);
+		}
+		AIORemoveGPIO(40);
+	}
+#endif
 	else
 	{
 		printf("No on-board button\n");

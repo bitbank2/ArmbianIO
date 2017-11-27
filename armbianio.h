@@ -21,6 +21,9 @@
 //
 #define GPIO_OUT 0
 #define GPIO_IN 1
+#define EDGE_FALLING 0
+#define EDGE_RISING 1
+#define EDGE_BOTH 2
 
 //
 // Initialize the library
@@ -105,6 +108,13 @@ int AIOReadButton(void);
 // (GPIO_IN or GPIO_OUT)
 //
 int AIOAddGPIO(int iPin, int iDirection);
+
+typedef void (*AIOCALLBACK)(int iState);
+//
+// Configure a GPIO pin to call a function
+// when the state changes (interrupt)
+//
+int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback); 
 
 //
 // Release a GPIO pin

@@ -30,11 +30,14 @@
 #include "armbianio.h"
 #include <linux/spi/spidev.h>
 #include <linux/i2c-dev.h>
+#include <pthread.h>
+#include <poll.h>
 
 static struct spi_ioc_transfer xfer;
 // Maximum header pins for all supported boards
 #define MAX_PINS 43
 static int iPinHandles[MAX_PINS]; // keep file handles open for GPIO access
+static AIOCALLBACK cbList[MAX_PINS];
 //
 // The following are lists which translate pin numbers into the GPIO numbers
 // used by the different boards. The first entry (0) is for the on-board
@@ -357,6 +360,101 @@ int *pPins;
 } /* AIOWriteGPIO() */
 
 //
+// GPIO Monitoring thread (one for each pin)
+//
+void *GPIOThread(void *param)
+{
+int iPin = (int)param; // pin number is passed in
+struct pollfd fdset[1];
+char szName[32], szTemp[64];
+int gpio_fd, iValue;
+int *pPins, rc;
+int timeout = 3000; // 3 seconds
+
+	pPins = iPinLists[iBoardType];
+
+	sprintf(szName, "/sys/class/gpio/gpio%d/value", pPins[iPin]);
+	gpio_fd = open(szName, O_RDONLY);
+	if (gpio_fd < 0) // something went wrong
+		return NULL;
+	lseek(gpio_fd, 0, SEEK_SET);
+	read(gpio_fd, szTemp, 64); // initial read to prevent false interrupt
+
+	while (1)
+	{
+		memset(fdset, 0, sizeof(fdset));
+		fdset[0].fd = gpio_fd;
+		fdset[0].events = POLLPRI;
+		rc = poll(&fdset[0], 1, timeout);
+		printf("Poll returned %d\n", rc);
+		if (rc < 0) return NULL;
+		// clear the interrupt by reading the data
+		lseek(gpio_fd, 0, SEEK_SET);
+		rc = read(gpio_fd, szTemp, 64);
+		iValue = (szTemp[0] == '1');
+		// see if it was a valid interrupt event
+		if (fdset[0].revents & POLLPRI)
+		{
+			if (cbList[iPin])
+				(*cbList[iPin])(iValue);
+		}
+	}
+	return NULL;
+} /* GPIOThread() */
+
+//
+// Initialize a GPIO line for input and set it up
+// to call the given function when the state changes
+//
+int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback)
+{
+char szName[64];
+int file_gpio, rc;
+int *pPins;
+char *szEdges[] = {"falling\n","rising\n","both\n"};
+pthread_t tinfo;
+ 
+	if (callback == NULL || iEdge < EDGE_FALLING || iEdge > EDGE_BOTH)
+		return 0;
+	if (iBoardType == -1) // not initialize
+		return 0;
+	pPins = iPinLists[iBoardType];
+	if (pPins[iPin] == -1) // invalid pin
+		return 0;
+	cbList[iPin] = callback; // save the callback pointer
+
+	// Export the GPIO pin
+	file_gpio = open("/sys/class/gpio/export", O_WRONLY);
+	sprintf(szName, "%d", pPins[iPin]);
+	rc = write(file_gpio, szName, strlen(szName));
+	close(file_gpio);
+
+	// Set the pin direction to input
+	sprintf(szName, "/sys/class/gpio/gpio%d/direction", pPins[iPin]);
+	file_gpio = open(szName, O_WRONLY);
+	rc = write(file_gpio, "in\n", 3);
+	close(file_gpio);
+
+	// Set the pin edge type
+	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
+	file_gpio = open(szName, O_WRONLY);
+	rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
+	close(file_gpio);
+	if (rc < 0) // not all pins can be set for interrupts
+	{
+		return 0;
+	}
+	// Start a thread to manage the interrupt/callback
+	pthread_create(&tinfo, NULL, GPIOThread, (void *)iPin);
+
+	if (rc < 0) // added to suppress compiler warnings
+	{ // do nothing
+	}
+
+	return 1;
+} /* AIOAddGPIOCallback() */
+
+//
 // Initialize a GPIO line for input or output
 // This will export it to the sysfs driver and
 // it will appear in /sys/class/gpio
@@ -379,9 +477,9 @@ int *pPins;
 	sprintf(szName, "/sys/class/gpio/gpio%d/direction", pPins[iPin]);
 	file_gpio = open(szName, O_WRONLY);
 	if (iDirection == GPIO_OUT)
-		rc = write(file_gpio, "out", 3);
+		rc = write(file_gpio, "out\n", 4);
 	else
-		rc = write(file_gpio, "in", 2);
+		rc = write(file_gpio, "in\n", 3);
 	close(file_gpio);
 	if (rc < 0) // added to suppress compiler warnings
 	{ // do nothing
