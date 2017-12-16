@@ -109,7 +109,7 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 static int *iPinLists[] = {iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
 static const char *szBoardNames[] = {"Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {29,29,43,43,32,40,40,40,40}; // number of pins in the header
+static int iPinCount[] = {29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
 
 //
 // Close any open handles to GPIO pins and
