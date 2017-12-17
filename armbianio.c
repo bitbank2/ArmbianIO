@@ -50,6 +50,11 @@ static AIOCALLBACK cbList[MAX_PINS];
 // and can be used for GPIOs as well.
 //
 
+// Orange Pi Zero Plus
+static int iOPIZPPins[] = {-1,-1,-1,12,-1,11,-1,6,198,-1,
+                        199,1,7,0,-1,3,19,-1,18,15,
+                        -1,16,2,14,13,-1,10,-1,5,4}; // last 3 pins are TTY header
+
 // Orange Pi Zero Plus 2
 static int iOPIZP2ins[] = {-1,-1,-1,12,-1,11,-1,6,0,-1,
 			1,352,107,353,-1,3,19,-1,18,-1,
@@ -101,10 +106,10 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188}; 
 
-static int *iPinLists[] = {iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
-static const char *szBoardNames[] = {"Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
+static int *iPinLists[] = {iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
+static const char *szBoardNames[] = {"Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {29,29,43,43,32,40,40,40,40}; // number of pins in the header
+static int iPinCount[] = {29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
 
 //
 // Close any open handles to GPIO pins and
