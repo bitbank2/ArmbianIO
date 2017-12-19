@@ -50,6 +50,13 @@ static AIOCALLBACK cbList[MAX_PINS];
 // and can be used for GPIOs as well.
 //
 
+// Raspberry Pi
+static int iRPIPins[] = {-1,-1,-1,2,-1,3,-1,4,14,-1,
+                        15,17,18,27,-1,22,23,-1,24,10,
+                        -1,9,25,11,8,-1,7,0,1,5,
+                        -1,6,12,13,-1,19,16,26,20,-1,
+                        21};
+
 // Orange Pi Zero Plus
 static int iOPIZPPins[] = {-1,-1,-1,12,-1,11,-1,6,198,-1,
                         199,1,7,0,-1,3,19,-1,18,15,
@@ -106,10 +113,10 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188}; 
 
-static int *iPinLists[] = {iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
-static const char *szBoardNames[] = {"Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
+static int *iPinLists[] = {iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
+static const char *szBoardNames[] = {"Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
+static int iPinCount[] = {40,29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
 
 //
 // Close any open handles to GPIO pins and
@@ -130,19 +137,26 @@ int i;
 //
 int AIOInit(void)
 {
+#ifndef RPIZERO
 FILE *ihandle;
+#endif
 char szTemp[256];
 int i;
 
 // Determine what board we're running on to know which GPIO
 // pin number table to use
 
+#ifdef RPIZERO
+	{
+		strcpy(szTemp, "Raspberry Pi");
+#else
 	ihandle = fopen("/run/machine.id", "rb");
 	if (ihandle != NULL)
 	{
 		i = fread(szTemp, 1, 255, ihandle);
 		fclose(ihandle);
 		szTemp[i] = 0; // make sure it's zero terminated
+#endif
 		// see if the board name matches known names
 		i = 0;
 		iBoardType = -1;

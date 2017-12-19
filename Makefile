@@ -1,4 +1,9 @@
+PROCESSOR:=$(shell uname -m)
+ifeq ($(PROCESSOR), armv6l)
+CFLAGS=-c -Wall -O2 -D RPIZERO
+else
 CFLAGS=-c -Wall -O2
+endif
 
 all: libarmbianio.a
 
