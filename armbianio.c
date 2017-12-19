@@ -308,13 +308,13 @@ int rc;
 int AIOWriteI2C(int iHandle, unsigned char ucRegister, unsigned char *buf, int iCount)
 {
 int rc;
+unsigned char ucTemp[2048];
+
 	// Writing to an I2C device involves first writing the 8-bit register
 	// followed by writing the data
-	rc = write(iHandle, &ucRegister, 1); // write the register value
-	if (rc == 1)
-	{	
-		rc = write(iHandle, buf, iCount);
-	}
+	ucTemp[0] = ucRegister; // some devices need it written atomically
+	memcpy(&ucTemp[1], buf, iCount);
+	rc = write(iHandle, ucTemp, iCount+1);
 	return rc;
 } /* AIOWriteI2C() */
 
