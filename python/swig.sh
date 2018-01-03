@@ -1,10 +1,13 @@
 #!/bin/sh
 
-# Create Python bindings
+# Create Python bindings as armbianio module
 
 # Get python includes
 includes=$(python-config --includes)
 
+# Generate module
 swig -python armbianio.i
-gcc -c -fPIC ../armbianio.c ArmbianIO_wrap.c $includes
-ld -shared ../armbianio.o ArmbianIO_wrap.o -o _ArmbianIO.so
+# Compile wrapper
+gcc -c -fPIC ../armbianio.c armbianio_wrap.c $includes
+# Link objects
+ld -shared armbianio.o armbianio_wrap.o -o _armbianio.so

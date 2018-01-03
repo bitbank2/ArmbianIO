@@ -2,7 +2,7 @@
  Swig interface file
  */
 
- %module ArmbianIO
+ %module armbianio
  %{
  /* Includes the header in the wrapper code */
  #include "../armbianio.h"
