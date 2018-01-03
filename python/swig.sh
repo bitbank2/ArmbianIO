@@ -5,8 +5,8 @@
 # Get python includes
 includes=$(python-config --includes)
 
-# Generate module
-swig -python armbianio.i
+# Generate module in package
+swig -python -outdir armbianio armbianio.i
 # Compile wrapper
 gcc -c -fPIC ../armbianio.c armbianio_wrap.c $includes
 # Link objects
