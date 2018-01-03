@@ -17,4 +17,4 @@ gcc -c -fPIC ../armbianio.c armbianio_wrap.c $includes
 ld -shared armbianio.o armbianio_wrap.o -o _armbianio.so
 
 # Deploy shared library
-cp _armbianio.so /usr/local/lib/.
+cp _armbianio.so /usr/local/lib/_armbianio.so
