@@ -8,9 +8,6 @@
 rm -f *.c *.o *.so armbianio/armbianio.*
 sudo rm -f /usr/local/lib/_armbianio.so
 
-# Get python includes
-includes=$(python-config --includes)
-
 # Install python-dev
 if [ $(dpkg-query -W -f='${Status}' python-dev 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
@@ -26,6 +23,9 @@ if [ $(dpkg-query -W -f='${Status}' swig 2>/dev/null | grep -c "ok installed") -
 then
 	sudo apt-get -y install swig;
 fi
+
+# Get python includes
+includes=$(python-config --includes)
 
 # Generate module in package
 swig -python -outdir armbianio armbianio.i
