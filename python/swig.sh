@@ -13,11 +13,20 @@ if [ $(dpkg-query -W -f='${Status}' python-dev 2>/dev/null | grep -c "ok install
 then
 	sudo apt-get -y install python-dev;
 fi
-# Install python-pip
+
+# Install pip
 if [ $(dpkg-query -W -f='${Status}' python-pip 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
 	sudo apt-get -y install python-pip;
 fi
+# Check pip	
+if python -c "import pip" &> /dev/null; then
+    echo 'pip OK'
+else
+	sudo -H pip install --upgrade pip;
+ 	sudo apt-get -y purge python-pip;
+fi
+
 # Install swig
 if [ $(dpkg-query -W -f='${Status}' swig 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
