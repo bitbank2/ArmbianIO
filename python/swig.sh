@@ -18,7 +18,7 @@ fi
 if ! python -c "import pip" &> /dev/null; then
 	sudo apt-get -y install python-pip;
 	sudo -H pip install --upgrade pip;
- 	sudo apt-get -y purge python-pip;fi
+ 	sudo apt-get -y purge python-pip;
 fi
 
 # Install swig
