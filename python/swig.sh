@@ -15,16 +15,10 @@ then
 fi
 
 # Install pip
-if [ $(dpkg-query -W -f='${Status}' python-pip 2>/dev/null | grep -c "ok installed") -eq 0 ];
-then
+if ! python -c "import pip" &> /dev/null; then
 	sudo apt-get -y install python-pip;
-fi
-# Check pip	
-if python -c "import pip" &> /dev/null; then
-    echo 'pip OK'
-else
 	sudo -H pip install --upgrade pip;
- 	sudo apt-get -y purge python-pip;
+ 	sudo apt-get -y purge python-pip;fi
 fi
 
 # Install swig
