@@ -38,7 +38,7 @@ int i, rc;
 const char *szBoardName;
 
 	// Initialize the library
-	rc = AIOInit();
+	rc = AIOInit("Raspberry Pi");
 	if (rc == 0)
 	{
 		printf("Problem initializing ArmbianIO library\n");
@@ -68,8 +68,17 @@ const char *szBoardName;
 #endif
 	else
 	{
-		printf("No on-board button\n");
+// blink an LED on pin 37
+		AIOAddGPIO(37, GPIO_OUT);
+		for (i=0; i<10; i++)
+		{
+			AIOWriteGPIO(37, 1);
+			usleep(500000);
+			AIOWriteGPIO(37, 0);
+			usleep(500000);
+		}
 	}
+
 	// Quit library and free resources
 	AIOShutdown();
 

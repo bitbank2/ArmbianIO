@@ -135,52 +135,52 @@ int i;
 // Initialize the ArmbianIO library
 // Determines the board type (name) and initializes the 'key' if present
 //
-int AIOInit(void)
+int AIOInit(const char *pBoardName)
 {
-#ifndef RPIZERO
 FILE *ihandle;
-#endif
 char szTemp[256];
 int i;
 
 // Determine what board we're running on to know which GPIO
 // pin number table to use
 
-#ifdef RPIZERO
+	szTemp[0] = 0;
+	if (pBoardName)
 	{
-		strcpy(szTemp, "Raspberry Pi");
-#else
-	ihandle = fopen("/run/machine.id", "rb");
-	if (ihandle != NULL)
-	{
-		i = fread(szTemp, 1, 255, ihandle);
-		fclose(ihandle);
-		szTemp[i] = 0; // make sure it's zero terminated
-#endif
-		// see if the board name matches known names
-		i = 0;
-		iBoardType = -1;
-		while (szBoardNames[i] != NULL)
-		{
-			if (strcmp(szBoardNames[i], szTemp) == 0) // found it!
-			{
-				iBoardType = i;
-				break;
-			}
-			i++;
-		}
-		if (iBoardType == -1) // not found
-		{
-			fprintf(stderr, "Unrecognized board type, aborting...\n");
-			return 0;
-		}
-		// Initialize all GPIO file system handles to -1 to start
-		memset(iPinHandles, -1, sizeof(iPinHandles));
-		// Try to activate the GPIO input for the key/button (if there is one)
-		AIOAddGPIO(0, GPIO_IN);
-		return 1; // success
+		strcpy(szTemp, pBoardName);
 	}
-	return 0; // failed to initialize
+	else
+	{
+		ihandle = fopen("/run/machine.id", "rb");
+		if (ihandle != NULL)
+		{
+			i = fread(szTemp, 1, 255, ihandle);
+			fclose(ihandle);
+			szTemp[i] = 0; // make sure it's zero terminated
+		}
+	}
+	// see if the board name matches known names
+	i = 0;
+	iBoardType = -1;
+	while (szBoardNames[i] != NULL)
+	{
+		if (strcmp(szBoardNames[i], szTemp) == 0) // found it!
+		{
+			iBoardType = i;
+			break;
+		}
+		i++;
+	}
+	if (iBoardType == -1) // not found
+	{
+		fprintf(stderr, "Unrecognized board type, aborting...\n");
+		return 0;
+	}
+	// Initialize all GPIO file system handles to -1 to start
+	memset(iPinHandles, -1, sizeof(iPinHandles));
+	// Try to activate the GPIO input for the key/button (if there is one)
+	AIOAddGPIO(0, GPIO_IN);
+	return 1; // success
 } /* AIOInit() */
 
 //
