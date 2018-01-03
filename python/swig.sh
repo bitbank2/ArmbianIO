@@ -19,3 +19,6 @@ ld -shared armbianio.o armbianio_wrap.o -o _armbianio.so
 
 # Deploy shared library
 sudo cp _armbianio.so /usr/local/lib/.
+
+# Install Python package
+sudo -H pip install -e .
