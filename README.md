@@ -21,6 +21,7 @@ don't have the unique board identifier (/run/machine.id)
 
 Features
 --------
+- Now supports any Linux distribution for ARM SBCs (e.g. RPI, OrangePi, NanoPi, etc)
 - Will support all SBCs supported by Armbian (soon)
 - Includes simple functions for communicating with GPIO, I2C and SPI buses
 - References GPIO pins by physical pin number
@@ -36,7 +37,7 @@ To build Python bindings `cd ArmbianIO/python` then `./swig.sh`. You can run as
 many times as you like since the script cleans up and regerates the wrapper
 from the C headers.
 
-Copyright (c) 2017 by Larry Bank
-Project started 11/13/2017
-bitbank@pobox.com
+Copyright (c) 2017 by Larry Bank<br>
+Project started 11/13/2017<br>
+bitbank@pobox.com<br>
 
