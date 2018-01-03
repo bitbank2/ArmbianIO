@@ -1,4 +1,4 @@
-*** ArmbianIO ***
+### ArmbianIO
 
 ArmbianIO is a C library for accessing I2C, SPI and GPIO ports in a consistent
 way across all of the SBCs that Armbian supports. Since Armbian supports SBCs
@@ -26,6 +26,7 @@ Features
 - References GPIO pins by physical pin number
 - Includes functions for detecting presence of and reading status of on-board
   key/button (not all boards have one)
+- Swig is used to generate Python bindings
  
 To build the library, simply type 'make' in the terminal. To build the sample
 app, type 'make -f make_demo'. This will build the 'demo' executable to show
