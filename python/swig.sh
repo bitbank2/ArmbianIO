@@ -3,7 +3,7 @@
 # Create Python bindings
 
 # Get python includes
-includes=$(command-name-here)
+includes=$(python-config --includes)
 
 swig -python armbianio.i
 gcc -c -fPIC ../armbianio.c ArmbianIO_wrap.c $includes
