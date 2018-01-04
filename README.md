@@ -34,7 +34,7 @@ app, type 'make -f make_demo'. This will build the 'demo' executable to show
 that the library is working.
 
 To build Python bindings `cd ArmbianIO/python` then `./swig.sh`. You can run as
-many times as you like since the script cleans up and regerates the wrapper
+many times as you like since the script cleans up and regenerates the wrapper
 from the C headers.
 
 Copyright (c) 2017 by Larry Bank<br>
