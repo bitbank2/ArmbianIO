@@ -27,7 +27,7 @@
 #include <time.h>
 #include <armbianio.h>
 
-void GPIOCallback(int iValue)
+void GPIOCallback(int, pin, int iValue)
 {
 	printf("Pin changed, new value = %d\n", iValue);
 } /* GPIOCallback() */
