@@ -414,7 +414,7 @@ int timeout = 3000; // 3 seconds
 		if (fdset[0].revents & POLLPRI)
 		{
 			if (cbList[iPin])
-				(*cbList[iPin])(iValue);
+				(*cbList[iPin])(iPin, iValue);
 		}
 	}
 	return NULL;
