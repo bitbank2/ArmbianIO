@@ -29,7 +29,7 @@
 
 void GPIOCallback(int iPin, int iValue)
 {
-	printf("Pin %d changed, new value = %d\n", iPin, iValue);
+	printf("Pin %d new value = %d\n", iPin, iValue);
 } /* GPIOCallback() */
 
 int main(int argc, char* argv[])
