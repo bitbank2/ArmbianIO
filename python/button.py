@@ -12,11 +12,13 @@ segfaults. The work around is to use Pythons ctypes module. This is way
 better then the wiringPi wrapper that has a function for each pin!
 
 Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
-since they are not interchangeable at runtime.  
+since they are not interchangeable at runtime. I'm only using Swig wrapper
+for the EDGE_BOTH constant.
 """
 
 import time
-from ctypes import CFUNCTYPE, CDLL
+from ctypes import *
+from armbianio.armbianio import EDGE_BOTH
 
 # Simple callback displays pin and value
 def buttonCallback(iPin, iValue):
@@ -25,6 +27,8 @@ def buttonCallback(iPin, iValue):
 armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
 rc = armbianioLib.AIOInit()
 if rc == 1:
+    # Function returns char array
+    armbianioLib.AIOGetBoardName.restype = c_char_p
     print "Running on a %s" % armbianioLib.AIOGetBoardName();
     if armbianioLib.AIOHasButton():
         button = 0
@@ -32,7 +36,7 @@ if rc == 1:
         cfunc = CFUNCTYPE(None, c_int, c_int)
         # Button callback
         armbianioLib.AIOAddGPIOCallback(button, EDGE_BOTH, cfunc(buttonCallback));
-        print "Press/release button a few times"
+        print "Press/release button a few times\n"
         time.sleep(10)
         armbianioLib.AIORemoveGPIO(0)
     else:
@@ -40,4 +44,3 @@ if rc == 1:
     armbianioLib.AIOShutdown()
 else:
     print "AIOInit error"
-    
