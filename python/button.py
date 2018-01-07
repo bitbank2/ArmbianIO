@@ -25,6 +25,7 @@ def buttonCallback(iPin, iValue):
     print "Button state: pin = %d, value = %d" % (iPin, iValue)
 
 armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
+# Detect SBC
 rc = armbianioLib.AIOInit()
 if rc == 1:
     # Function returns char array

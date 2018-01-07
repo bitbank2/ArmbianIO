@@ -19,7 +19,7 @@ is no need for ctypes.
 import time
 from armbianio.armbianio import *
 
-# Pass None to have SBC detected
+# Detect SBC
 rc = AIOInit()
 if rc == 1:
     pin = 12
