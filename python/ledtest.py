@@ -10,6 +10,7 @@ the LED), then the resistor to 3.3 V, and connect the cathode (the short
 pin) of the LED to pin 12 (IOG11). The anode of LED connects to a
 current-limiting resistor and then to 3.3V. Therefore, to turn on an LED,
 we need to make pin 12 low (0V) level. It can be realized by programming.
+See images/ledtest.jpg for schematic.
 
 Note: Only Swig wrapper is used here since no callbacks are used and there
 is no need for ctypes.
