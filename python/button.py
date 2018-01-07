@@ -8,8 +8,8 @@ Simple callback using built in button
 Since AIOAddGPIOCallback takes a C function pointer Swig generates unusable
 code which is ignored in armbianio.i. Another issue it that a GPIOThread
 is created trying to write a C wrapper calling a Python function causes
-segfaults. The work around is to use Pythons ctypes module. This is way
-better then the wiringPi wrapper that has a function for each pin!
+segfaults. The work around is to use Python's ctypes module. This is way
+better than the wiringPi wrapper that has a huge switch statement!
 
 Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
 since they are not interchangeable at runtime. I'm only using Swig wrapper
