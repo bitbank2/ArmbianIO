@@ -5,7 +5,7 @@
 # Run in the python dir of the ArmbianIO project
 
 # Clean up
-rm -f *.c *.o *.so armbianio/armbianio.*
+rm -f armbianio_wrap.c *.o *.so armbianio/armbianio.*
 sudo rm -f /usr/local/lib/_armbianio.so
 
 # Install python-dev
@@ -36,7 +36,7 @@ includes=$(python-config --includes)
 swig -python -outdir armbianio armbianio.i
 
 # Compile wrapper
-gcc -c -fPIC ../armbianio.c armbianio_wrap.c $includes
+gcc -c -Wall -O2 -fPIC ../armbianio.c armbianio_wrap.c $includes
 
 # Link objects
 ld -shared armbianio.o armbianio_wrap.o -o _armbianio.so
