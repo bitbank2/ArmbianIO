@@ -11,13 +11,12 @@ is created trying to write a C wrapper calling a Python function causes
 segfaults. The work around is to use Pythons ctypes module. This is way
 better then the wiringPi wrapper that has a function for each pin!
 
-Note that I only use ctypes for the callback and armbianio module for
-everything else.
+Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
+since they are not interchangeable.  
 """
 
 import time
 from ctypes import CFUNCTYPE, CDLL
-from armbianio.armbianio import *
 
 # Simple callback displays pin and value
 def buttonCallback(iPin, iValue):
@@ -26,8 +25,8 @@ def buttonCallback(iPin, iValue):
 armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
 rc = armbianioLib.AIOInit(None)
 if rc == 1:
-    print "Running on a %s" % AIOGetBoardName();
-    if AIOHasButton():
+    print "Running on a %s" % armbianioLib.AIOGetBoardName();
+    if armbianioLib.AIOHasButton():
         button = 0
         # Callback prototype
         cfunc = CFUNCTYPE(None, c_int, c_int)
@@ -35,10 +34,10 @@ if rc == 1:
         armbianioLib.AIOAddGPIOCallback(button, EDGE_BOTH, cfunc(buttonCallback));
         print "Press/release button a few times"
         time.sleep(10)
-        AIORemoveGPIO(0)
+        armbianioLib.AIORemoveGPIO(0)
     else:
-        print "%s does not have a button" % AIOGetBoardName();
-    AIOShutdown()
+        print "%s does not have a button" % armbianioLib.AIOGetBoardName();
+    armbianioLib.AIOShutdown()
 else:
     print "AIOInit error"
     
