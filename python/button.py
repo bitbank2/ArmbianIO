@@ -12,7 +12,7 @@ segfaults. The work around is to use Pythons ctypes module. This is way
 better then the wiringPi wrapper that has a function for each pin!
 
 Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
-since they are not interchangeable.  
+since they are not interchangeable at runtime.  
 """
 
 import time
