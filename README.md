@@ -1,4 +1,4 @@
-![Title](images/title.png)
+![Logo](images/logo.png)
 
 ArmbianIO is a C library for accessing I2C, SPI and GPIO ports in a consistent
 way across all of the SBCs that Armbian supports. Since Armbian supports SBCs
