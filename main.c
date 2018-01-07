@@ -57,7 +57,7 @@ const char *szBoardName;
 	}
 #else // use interrupts
 	{
-		AIOAddGPIOCallback(0, EDGE_RISING, GPIOCallback);
+		AIOAddGPIOCallback(0, EDGE_BOTH, GPIOCallback);
 		// wait for presses
 		for (i=0; i<30; i++)
 		{
