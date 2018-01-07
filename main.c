@@ -27,9 +27,9 @@
 #include <time.h>
 #include <armbianio.h>
 
-void GPIOCallback(int iValue)
+void GPIOCallback(int iPin, int iValue)
 {
-	printf("Pin changed, new value = %d\n", iValue);
+	printf("Pin %d changed, new value = %d\n", iPin, iValue);
 } /* GPIOCallback() */
 
 int main(int argc, char* argv[])
@@ -38,7 +38,7 @@ int i, rc;
 const char *szBoardName;
 
 	// Initialize the library
-	rc = AIOInit("Raspberry Pi");
+	rc = AIOInit(NULL);
 	if (rc == 0)
 	{
 		printf("Problem initializing ArmbianIO library\n");

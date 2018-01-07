@@ -113,7 +113,7 @@ int AIOReadButton(void);
 //
 int AIOAddGPIO(int iPin, int iDirection);
 
-typedef void (*AIOCALLBACK)(int iState);
+typedef void (*AIOCALLBACK)(int iPin, int iState);
 //
 // Configure a GPIO pin to call a function
 // when the state changes (interrupt)
