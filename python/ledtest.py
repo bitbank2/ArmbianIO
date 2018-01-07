@@ -17,7 +17,7 @@ import time
 from armbianio.armbianio import *
 
 # Pass None to have SBC detected
-rc = AIOInit(None)
+rc = AIOInit()
 if rc == 1:
     pin = 12
     # Pin 12 set to output

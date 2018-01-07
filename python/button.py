@@ -23,7 +23,7 @@ def buttonCallback(iPin, iValue):
     print "Button state: pin = %d, value = %d" % (iPin, iValue)
 
 armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
-rc = armbianioLib.AIOInit(None)
+rc = armbianioLib.AIOInit()
 if rc == 1:
     print "Running on a %s" % armbianioLib.AIOGetBoardName();
     if armbianioLib.AIOHasButton():
