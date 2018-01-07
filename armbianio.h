@@ -29,11 +29,21 @@
 // Initialize the library
 // 1 = success, 0 = failure
 //
+// Convenience function to behave like original API. Calls AIOInitBoard with
+// NULL
+//
+int AIOInit();
+
+//
+// Initialize the library
+// 1 = success, 0 = failure
+//
 // On Armbian 4.1x, pBoardName can be NULL and it will read the name internally
 // for non-Armbian (e.g. Raspberry Pi) or earlier builds of Armbian, pass the
 // board name to get the correct GPIO pin mappings
 //
-int AIOInit(const char *pBoardName);
+int AIOInitBoard(const char *pBoardName);
+
 
 // Free the resources
 void AIOShutdown(void);
