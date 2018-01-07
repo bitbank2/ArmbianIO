@@ -38,7 +38,7 @@ int i, rc;
 const char *szBoardName;
 
 	// Initialize the library
-	rc = AIOInit(NULL);
+	rc = AIOInit();
 	if (rc == 0)
 	{
 		printf("Problem initializing ArmbianIO library\n");
