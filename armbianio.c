@@ -133,9 +133,19 @@ int i;
 
 //
 // Initialize the ArmbianIO library
+// Convenience function calls AIOInitBoard with NULL
+//
+int AIOInit(void)
+{
+	int rc = AIOInitBoard(NULL);
+	return rc;
+}
+
+//
+// Initialize the ArmbianIO library
 // Determines the board type (name) and initializes the 'key' if present
 //
-int AIOInit(const char *pBoardName)
+int AIOInitBoard(const char *pBoardName)
 {
 FILE *ihandle;
 char szTemp[256];
@@ -414,7 +424,7 @@ int timeout = 3000; // 3 seconds
 		if (fdset[0].revents & POLLPRI)
 		{
 			if (cbList[iPin])
-				(*cbList[iPin])(iValue);
+				(*cbList[iPin])(iPin, iValue);
 		}
 	}
 	return NULL;

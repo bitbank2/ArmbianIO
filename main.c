@@ -27,9 +27,9 @@
 #include <time.h>
 #include <armbianio.h>
 
-void GPIOCallback(int iValue)
+void GPIOCallback(int iPin, int iValue)
 {
-	printf("Pin changed, new value = %d\n", iValue);
+	printf("Pin %d new value = %d\n", iPin, iValue);
 } /* GPIOCallback() */
 
 int main(int argc, char* argv[])
@@ -38,7 +38,7 @@ int i, rc;
 const char *szBoardName;
 
 	// Initialize the library
-	rc = AIOInit("Raspberry Pi");
+	rc = AIOInit();
 	if (rc == 0)
 	{
 		printf("Problem initializing ArmbianIO library\n");
@@ -57,7 +57,7 @@ const char *szBoardName;
 	}
 #else // use interrupts
 	{
-		AIOAddGPIOCallback(0, EDGE_RISING, GPIOCallback);
+		AIOAddGPIOCallback(0, EDGE_BOTH, GPIOCallback);
 		// wait for presses
 		for (i=0; i<30; i++)
 		{
