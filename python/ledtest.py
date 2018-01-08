@@ -16,7 +16,6 @@ Note: Only Swig wrapper is used here since no callbacks are used and there
 is no need for ctypes.
 """
 
-
 import time
 from armbianio.armbianio import *
 
