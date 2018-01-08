@@ -137,8 +137,7 @@ int i;
 //
 int AIOInit(void)
 {
-	int rc = AIOInitBoard(NULL);
-	return rc;
+	return AIOInitBoard(NULL);
 }
 
 //
