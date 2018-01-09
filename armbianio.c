@@ -50,6 +50,13 @@ static AIOCALLBACK cbList[MAX_PINS];
 // and can be used for GPIOs as well.
 //
 
+// Banana Pi M2 Zero
+static int iBPIZPins[] = {355,-1,-1,12,-1,11,-1,6,13,-1,
+			14,1,110,0,-1,3,15,-1,68,64,
+			-1,65,2,66,67,-1,71,19,18,7,
+			-1,8,354,9,-1,10,356,17,21,-1,
+			20};
+
 // Raspberry Pi
 static int iRPIPins[] = {-1,-1,-1,2,-1,3,-1,4,14,-1,
                         15,17,18,27,-1,22,23,-1,24,10,
@@ -113,10 +120,10 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188}; 
 
-static int *iPinLists[] = {iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
-static const char *szBoardNames[] = {"Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
+static int *iPinLists[] = {iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
+static const char *szBoardNames[] = {"Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {40,29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
+static int iPinCount[] = {40,40,29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
 
 //
 // Close any open handles to GPIO pins and
