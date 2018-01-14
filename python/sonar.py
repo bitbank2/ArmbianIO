@@ -30,7 +30,7 @@ from armbianio.armbianio import GPIO_IN, GPIO_OUT, EDGE_FALLING, EDGE_RISING, ED
 class sonar:
 
     def __init__(self, fileName):
-        """Read in configuration, set up video writer and setup windows"""
+        """Read in configuration and load shared library"""
         self.parser = ConfigParser.SafeConfigParser()
         # Read configuration file
         self.parser.read(fileName)
@@ -63,10 +63,10 @@ class sonar:
         
     def echoCallback(self, pin, value):
         """Handle echo rising and falling"""
-        # If rising then save start time
+        # If rising then save time
         if value == EDGE_RISING:
             self.risingTime = time.time()
-        # Falling, so get calculate inches
+        # Falling, so calculate distance
         else:
             self.fallingTime = time.time()
             # Calculate distance
@@ -76,7 +76,7 @@ class sonar:
                 self.sample += 1
                 self.totalDist += distance
             else:
-                self.logger.error("Out of range: %0.2f" % distance)
+                self.logger.debug("Out of range: %0.2f" % distance)
             self.waiting = False
 
     def configDevice(self):
