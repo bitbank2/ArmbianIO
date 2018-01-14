@@ -27,7 +27,6 @@ import ConfigParser, logging, sys, os, traceback, time, datetime
 from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p
 from armbianio.armbianio import GPIO_IN, GPIO_OUT, EDGE_FALLING, EDGE_RISING, EDGE_BOTH
 
-
 class sonar:
 
     def __init__(self, fileName):
