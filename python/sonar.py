@@ -23,6 +23,7 @@ Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
 since they are not interchangeable at runtime. I'm only using Swig wrapper
 for the constants.
 """
+
 import ConfigParser, logging, sys, os, traceback, time, datetime
 from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p
 from armbianio.armbianio import GPIO_IN, GPIO_OUT, EDGE_FALLING, EDGE_RISING, EDGE_BOTH
