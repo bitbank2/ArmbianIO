@@ -20,11 +20,9 @@ import time
 from ctypes import *
 from armbianio.armbianio import EDGE_BOTH
 
-
 # Simple callback displays pin and value
 def buttonCallback(iPin, iValue):
     print "Button state: pin = %d, value = %d" % (iPin, iValue)
-
 
 armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
 # Detect SBC
