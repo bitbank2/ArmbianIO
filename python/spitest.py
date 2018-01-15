@@ -6,7 +6,7 @@
 SPI loopback test
 -------------
 This should work the same on all SBCs supported by ArmbianIO. Make sure SPI is
-configured and wire MO to MI
+configured and wire MO to MI.
 
 Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
 since they are not interchangeable at runtime.
