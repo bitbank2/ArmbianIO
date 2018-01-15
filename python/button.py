@@ -17,7 +17,7 @@ for the EDGE_BOTH constant.
 """
 
 import time
-from ctypes import *
+from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p
 from armbianio.armbianio import EDGE_BOTH
 
 # Simple callback displays pin and value
