@@ -35,7 +35,15 @@ that the library is working.
 
 To build Python bindings `cd ArmbianIO/python` then `./swig.sh`. You can run as
 many times as you like since the script cleans up and regenerates the wrapper
-from the C headers.
+from the C headers. `sudo python ledtest.py` to run LED test after wiring up
+project.
+
+To build Java bindings `cd ArmbianIO/java` then `./swig.sh`. You can run as
+many times as you like since the script cleans up and regenerates the wrapper
+from the C headers. The Java bindings depend on Oracle JDK 8 which swig.sh
+installs. If you wish to use another JDK then you will need to modify swig.sh.
+Use `sudo java -cp armbianio.jar:. LedTest` to run LED test after wiring up
+project.
 
 Copyright (c) 2017 by Larry Bank<br>
 Project started 11/13/2017<br>
