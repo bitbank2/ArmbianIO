@@ -11,7 +11,11 @@ import armbianio.ArmbianIO;
  * current-limiting resistor and then to 3.3V. Therefore, to turn on an LED,
  * we need to make pin 12 low (0V) level. It can be realized by programming.
  * See images/ledtest.jpg for schematic.
+ * 
+ * Copyright (c) 2018 Steven P. Goldsmith
+ * See LICENSE.md for details.
  */
+
 public class LedTest {
 
 	static {

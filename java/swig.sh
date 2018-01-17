@@ -7,7 +7,6 @@
 # Clean up
 rm -f *.c *.o *.so
 sudo rm -f /usr/local/lib/armbianio_java.so
-sudo rm -rf armbianio
 
 # Install Java
 if ! command -v java
@@ -38,9 +37,12 @@ sudo cp armbianio_java.so /usr/local/lib/.
 # Compile Java wrapper code
 javac armbianio/ArmbianIO.java
 
+# Compile JNA interface
+javac -cp jna-4.5.0.jar armbianio/ArmbianIoLib.java
+
 # Create package
 /usr/lib/jvm/jdk1.8.0/bin/jar cf armbianio.jar armbianio/*.class
 
 # Compile demo code
 javac -cp armbianio.jar LedTest.java
-javac -cp jna-4.5.0.jar Button.java
+javac -cp jna-4.5.0.jar:armbianio.jar Button.java
