@@ -5,7 +5,7 @@
 # Run in the python dir of the ArmbianIO project
 
 # Clean up
-rm -f armbianio_wrap.c *.o *.so
+rm -f *.c *.o *.so
 sudo rm -f /usr/local/lib/armbianio_java.so
 sudo rm -rf armbianio
 
@@ -43,3 +43,4 @@ javac armbianio/ArmbianIO.java
 
 # Compile demo code
 javac -cp armbianio.jar LedTest.java
+javac -cp jna-4.5.0.jar Button.java

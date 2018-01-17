@@ -23,21 +23,28 @@ tmpdir="$HOME/temp"
 
 # JDK archive stuff
 javahome=/usr/lib/jvm/jdk1.8.0
-jdkurl="http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/"
-jdkver="jdk1.8.0_151"
+jdkurl="http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/"
+jdkver="jdk1.8.0_162"
 # ARM 32
 if [ "$arch" = "armv7l" ]; then
-	jdkarchive="jdk-8u151-linux-arm32-vfp-hflt.tar.gz"
+	jdkarchive="jdk-8u162-linux-arm32-vfp-hflt.tar.gz"
+	jnaplatform="https://github.com/java-native-access/jna/raw/master/lib/native/linux-arm.jar"
 # ARM 64
 elif [ "$arch" = "aarch64" ]; then
-	jdkarchive="jdk-8u151-linux-arm64-vfp-hflt.tar.gz"
+	jdkarchive="jdk-8u162-linux-arm64-vfp-hflt.tar.gz"
+	jnaplatform="https://github.com/java-native-access/jna/raw/master/lib/native/linux-arm.jar"
 # X86
 elif [ "$arch" = "i586" ] || [ "$arch" = "i686" ]; then
-	jdkarchive="jdk-8u151-linux-i586.tar.gz"
+	jdkarchive="jdk-8u162-linux-i586.tar.gz"
+	jnaplatform="https://github.com/java-native-access/jna/raw/master/lib/native/linux-x86.jar"
 # X86_64	
 elif [ "$arch" = "x86_64" ]; then
-	jdkarchive="jdk-8u151-linux-x64.tar.gz"
+	jdkarchive="jdk-8u162-linux-x64.tar.gz"
+	jnaplatform="https://github.com/java-native-access/jna/raw/master/lib/native/linux-x86-64.jar"
 fi
+
+# JNA jar (4.5.1 causes UnsatisfiedLinkError)
+jnajar="central.maven.org/maven2/net/java/dev/jna/jna/4.5.0/jna-4.5.0.jar"
 
 # stdout and stderr for commands logged
 logfile="$curdir/install-java.log"
@@ -80,6 +87,14 @@ else
 	. /etc/environment
 	log "JAVA_HOME = $JAVA_HOME"
 fi
+
+log "Downloading JNA jars..."
+rm -f jna*.jar linux*.jar
+wget $jnajar
+wget $jnaplatform
+$javahome/bin/jar xf $(basename "$jnaplatform") libjnidispatch.so
+chmod a+x libjnidispatch.so
+sudo mv libjnidispatch.so /usr/local/lib
 
 # Clean up
 log "Removing $tmpdir"
