@@ -39,6 +39,7 @@ if rc == 1:
         armbianioLib.AIOAddGPIOCallback(button, EDGE_BOTH, cfunc(buttonCallback));
         print "Press/release button a few times\n"
         time.sleep(10)
+        # Remove callback
         armbianioLib.AIORemoveGPIO(0)
     else:
         print "%s does not have a button" % armbianioLib.AIOGetBoardName();
