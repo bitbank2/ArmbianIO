@@ -13,14 +13,14 @@ since they are not interchangeable at runtime.
 """
 
 import time
-from ctypes import CDLL, c_char_p
+from armbianio.armbianio import *
 
 def getRange(handle):
     """Retrieve the current range of the accelerometer.  See setRange for
     the possible range constant values that will be returned.
     """
     retVal = "0"
-    armbianioLib.AIOReadI2C(handle, 0x31, retVal, 1)
+    AIOReadI2C(handle, 0x31, retVal, 1)
     return ord(retVal) & 0x03
 
 def setRange(handle, value):
@@ -29,25 +29,25 @@ def setRange(handle, value):
     # Read the data format register to preserve bits.  Update the data
     # rate, make sure that the FULL-RES bit is enabled for range scaling
     retVal = "0"
-    armbianioLib.AIOReadI2C(handle, 0x31, retVal, 1)
+    AIOReadI2C(handle, 0x31, retVal, 1)
     formatReg = ord(retVal) & ~0x0f
     formatReg |= value
     formatReg |= 0x08  # FULL-RES bit enabled
     # Write the updated format register
-    armbianioLib.AIOWriteI2C(handle, 0x31, chr(formatReg), 1)
+    AIOWriteI2C(handle, 0x31, chr(formatReg), 1)
 
 def setDataRate(handle, rate):
     """Set the data rate of the accelerometer.
     """
     # Note: The LOW_POWER bits are currently ignored,
     # we always keep the device in 'normal' mode
-    armbianioLib.AIOWriteI2C(handle, 0x2c, chr(rate & 0x0f), 1)
+    AIOWriteI2C(handle, 0x2c, chr(rate & 0x0f), 1)
    
 def getDataRate(handle):
     """Retrieve the current data rate.
     """
     retVal = "0"
-    armbianioLib.AIOReadI2C(handle, 0x2c, retVal, 1)
+    AIOReadI2C(handle, 0x2c, retVal, 1)
     return ord(retVal) & 0x0f
 
 def intFix(value):
@@ -59,7 +59,7 @@ def read(handle):
     """Retrieve the current data rate. X-axis data 0 (6 bytes for X/Y/Z).
     """
     retVal = "012345"
-    armbianioLib.AIOReadI2C(handle, 0x32, retVal, len(retVal))
+    AIOReadI2C(handle, 0x32, retVal, len(retVal))
     # Convert string to tuple of 16 bit integers x, y, z
     x = ord(retVal[0]) | (ord(retVal[1]) << 8)
     if(x & (1 << 16 - 1)):
@@ -72,21 +72,18 @@ def read(handle):
         z = z - (1<<16)    
     return (x, y, z)
 
-armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
 # Detect SBC
-rc = armbianioLib.AIOInit()
+rc = AIOInit()
 if rc == 1:
-    # Function returns char array
-    armbianioLib.AIOGetBoardName.restype = c_char_p
-    print "Running on a %s" % armbianioLib.AIOGetBoardName();
+    print "Running on a %s" % AIOGetBoardName();
     # ADXL345 wired up to NanoPi Duo i2c-0 on port 0x53
-    handle = armbianioLib.AIOOpenI2C(0, 0x53)
+    handle = AIOOpenI2C(0, 0x53)
     deviceId = "0"
-    if armbianioLib.AIOReadI2C(handle, 0x00, deviceId, 1) > 0:
+    if AIOReadI2C(handle, 0x00, deviceId, 1) > 0:
         # Is this an ADXL345?
         if hex(ord(deviceId)) == "0xe5":
             # Enable the accelerometer
-            if armbianioLib.AIOWriteI2C(handle, 0x2d, chr(0x08), 1) > 0:
+            if AIOWriteI2C(handle, 0x2d, chr(0x08), 1) > 0:
                 # +/- 2g
                 setRange(handle, 0x00)
                 # 100 Hz
@@ -100,7 +97,7 @@ if rc == 1:
                     count += 1
         else:
             print "Failed to find the expected device ID register value, check your wiring and I2C configuration"
-    armbianioLib.AIOCloseI2C(handle)
-    armbianioLib.AIOShutdown()
+    AIOCloseI2C(handle)
+    AIOShutdown()
 else:
     print "AIOInit error"

@@ -10,39 +10,30 @@ code which is ignored in armbianio.i. Another issue is that a GPIOThread
 is created, so trying to write a C wrapper calling a Python function causes
 segfaults. The work around is to use Python's ctypes module. This is way
 better than the wiringPi wrapper that has a huge switch statement!
-
-Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
-since they are not interchangeable at runtime. I'm only using Swig wrapper
-for the EDGE_BOTH constant.
 """
 
 import time
-from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p
-from armbianio.armbianio import EDGE_BOTH
+from armbianio.armbianio import *
 
 # Simple callback displays pin and value
-def buttonCallback(iPin, iValue):
-    print "Button state: pin = %d, value = %d" % (iPin, iValue)
+def buttonCallback(iPin, iEdge):
+    print "Button state: pin = %d, value = %d" % (iPin, iEdge)
 
-armbianioLib = CDLL("/usr/local/lib/_armbianio.so")
 # Detect SBC
-rc = armbianioLib.AIOInit()
+rc = AIOInit()
 if rc == 1:
     # Function returns char array
-    armbianioLib.AIOGetBoardName.restype = c_char_p
-    print "Running on a %s" % armbianioLib.AIOGetBoardName();
-    if armbianioLib.AIOHasButton():
+    print "Running on a %s" % AIOGetBoardName();
+    if AIOHasButton():
         button = 0
-        # Callback prototype
-        cfunc = CFUNCTYPE(None, c_int, c_int)
         # Button callback
-        armbianioLib.AIOAddGPIOCallback(button, EDGE_BOTH, cfunc(buttonCallback));
+        AIOAddGPIOCallback(button, EDGE_BOTH, AIOCALLBACK(buttonCallback));
         print "Press/release button a few times\n"
         time.sleep(10)
         # Remove callback
-        armbianioLib.AIORemoveGPIO(0)
+        AIORemoveGPIO(0)
     else:
-        print "%s does not have a button" % armbianioLib.AIOGetBoardName();
-    armbianioLib.AIOShutdown()
+        print "%s does not have a button" % AIOGetBoardName();
+    AIOShutdown()
 else:
     print "AIOInit error"

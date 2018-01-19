@@ -18,15 +18,10 @@ event. You just need to implement code to do something. Right now it just
 logs the value that caused the trip. If the HC-SR04 does not receive an echo
 then the output never goes low. This will not hang the program since it
 is using a callback to drive sampling. 
-
-Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
-since they are not interchangeable at runtime. I'm only using Swig wrapper
-for the constants.
 """
 
 import ConfigParser, logging, sys, os, traceback, time, datetime
-from ctypes import CDLL, CFUNCTYPE, c_int, c_char_p
-from armbianio.armbianio import GPIO_IN, GPIO_OUT, EDGE_FALLING, EDGE_RISING, EDGE_BOTH
+from armbianio.armbianio import *
 
 class sonar:
 
@@ -47,8 +42,6 @@ class sonar:
         self.logger.debug("Logging formatter: %s" % self.parser.get("logging", "formatter"))
         self.risingTime = 0.0
         self.fallingTime = 0.0
-        # Load shared library built with Swig
-        self.armbianioLib = CDLL(self.parser.get("gpio", "dll"))
         self.triggerPin = self.parser.getint("gpio", "triggerPin")
         self.echoPin = self.parser.getint("gpio", "echoPin")
         self.samples = self.parser.getint("distance", "samples")
@@ -83,25 +76,23 @@ class sonar:
     def configDevice(self):
         """Set pin directions and echo callback"""
         # Set pin directions
-        self.armbianioLib.AIOAddGPIO(self.triggerPin, GPIO_OUT)
-        self.armbianioLib.AIOAddGPIO(self.echoPin, GPIO_IN)
+        AIOAddGPIO(self.triggerPin, GPIO_OUT)
+        AIOAddGPIO(self.echoPin, GPIO_IN)
         # Keep reference from being garbage collected and getting Segmentation fault
         self.callback = self.echoCallback
-        # Callback prototype (use self to keep reference)
-        self.cfunc = CFUNCTYPE(None, c_int, c_int)
         # Echo callback
-        self.armbianioLib.AIOAddGPIOCallback(self.echoPin, EDGE_BOTH, self.cfunc(self.callback));
+        AIOAddGPIOCallback(self.echoPin, EDGE_BOTH, AIOCALLBACK(self.callback));
 
     def ping(self):
         """Ping with sound"""
         # Start with falling value
-        self.armbianioLib.AIOWriteGPIO(self.triggerPin, EDGE_FALLING)
+        AIOWriteGPIO(self.triggerPin, EDGE_FALLING)
         time.sleep(0.000002)
         # Set to rising for at least 10 microseconds
-        self.armbianioLib.AIOWriteGPIO(self.triggerPin, EDGE_RISING)
+        AIOWriteGPIO(self.triggerPin, EDGE_RISING)
         time.sleep(0.00001)
         # Set to falling to start sound ping
-        self.armbianioLib.AIOWriteGPIO(self.triggerPin, EDGE_FALLING)
+        AIOWriteGPIO(self.triggerPin, EDGE_FALLING)
 
     def loop(self):
         """Calculate distance """
@@ -131,18 +122,18 @@ if __name__ == "__main__":
             fileName = os.path.expanduser(sys.argv[1])
         sonar = sonar(fileName)
         # Detect SBC
-        rc = sonar.armbianioLib.AIOInit()
+        rc = AIOInit()
         if rc == 1:
             # Function returns char array
-            sonar.armbianioLib.AIOGetBoardName.restype = c_char_p
-            sonar.logger.info("Running on %s" % sonar.armbianioLib.AIOGetBoardName().rstrip())
+            AIOGetBoardName.restype = c_char_p
+            sonar.logger.info("Running on %s" % AIOGetBoardName().rstrip())
             # Set pin directions and echo callback
             sonar.configDevice()
             sonar.loop()
         else:
             sonar.logger.error("SBC not detected")
         # Clean up
-        sonar.armbianioLib.AIOShutdown()
+        AIOShutdown()
     except:
         # Add timestamp to errors
         sys.stderr.write("%s " % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f"))

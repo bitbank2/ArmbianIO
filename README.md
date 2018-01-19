@@ -33,8 +33,8 @@ To build the C library, simply type 'make' in the terminal. To build the sample
 app, type 'make -f make_demo'. This will build the 'demo' executable to show
 that the library is working.
 
-To build Python bindings `cd ArmbianIO/python` then `./swig.sh`. You can run as
-many times as you like since the script cleans up and regenerates the wrapper
+To build Python bindings `cd ArmbianIO/python` then `./wrapper.sh`. You can run
+as many times as you like since the script cleans up and regenerates the wrapper
 from the C headers. `sudo python ledtest.py` to run LED test after wiring up
 project.
 
