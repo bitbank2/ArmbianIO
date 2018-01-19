@@ -14,7 +14,7 @@ then
 	sudo apt-get -y install python-dev
 fi
 
-# Install pip and tools
+# Install pip and ctypesgen
 if ! command -v pip
 then
 	sudo apt-get -y install python-pip
