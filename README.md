@@ -42,8 +42,8 @@ To build Java bindings `cd ArmbianIO/java` then `./wrapper.sh`. You can run as
 many times as you like since the script cleans up and compiles the wrapper. The
 Java bindings depend on Oracle JDK 8 which wrapper.sh installs. If you wish to
 use another JDK then you will need to modify wrapper.sh. Use
-`sudo java -cp armbianio.jar:. LedTest` to run LED test after wiring up
-project. To run programs compiled with JNA use `sudo java -Djava.library.path=/usr/local/lib -cp jna-4.5.0.jar:armbianio.jar:. Button`
+`sudo java -Djava.library.path=/usr/local/lib -cp jna-4.5.0.jar:armbianio.jar:. LedTest`
+to run LED test after wiring up project.
 
 Copyright (c) 2017 by Larry Bank<br>
 Project started 11/13/2017<br>
