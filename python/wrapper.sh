@@ -6,6 +6,7 @@
 
 # Clean up
 rm -f *.o *.so
+rm -rf armbianio
 
 # Install python-dev
 if [ $(dpkg-query -W -f='${Status}' python-dev 2>/dev/null | grep -c "ok installed") -eq 0 ];
@@ -33,6 +34,8 @@ ld -shared armbianio.o -o libarmbianio.so
 sudo cp libarmbianio.so /usr/local/lib/.
 
 # Generate armbianio python module
+mkdir armbianio
+touch armbianio/__init__.py
 ctypesgen.py -o armbianio/armbianio.py -l /usr/local/lib/libarmbianio.so ../armbianio.h
 
 # Install Python package
