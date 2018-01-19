@@ -1,16 +1,9 @@
-import armbianio.ArmbianIoLib;
 import com.sun.jna.Native;
 import java.util.concurrent.TimeUnit;
+import armbianio.ArmbianIoLib;
 
 /**
  * Simple callback using built in button.
- * 
- * Since AIOAddGPIOCallback takes a C function pointer Swig generates unusable
- * code which is ignored in armbianio.i. The work around is to use the JNA
- * framework ctypes module.
- * 
- * Note: Stick with JNA and do not mix armbianio wrapper classes with JNA
- * since they are not interchangeable at runtime.
  * 
  * Copyright (c) 2018 Steven P. Goldsmith
  * See LICENSE.md for details.
@@ -23,7 +16,7 @@ public class Button {
 		System.setProperty("jna.debug_load", "false");
 		System.setProperty("jna.debug_load.jna", "false");
 		// Load shared library
-		final ArmbianIoLib armbianIoLib = (ArmbianIoLib) Native.loadLibrary("/usr/local/lib/armbianio_java.so",
+		final ArmbianIoLib armbianIoLib = (ArmbianIoLib) Native.loadLibrary("/usr/local/lib/libarmbianio.so",
 				ArmbianIoLib.class);
 		final int rc = armbianIoLib.AIOInit();
 		if (rc == 1) {

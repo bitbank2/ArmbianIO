@@ -1,6 +1,6 @@
+import com.sun.jna.Native;
 import java.util.concurrent.TimeUnit;
-import armbianio.ArmbianIOConstants;
-import armbianio.ArmbianIO;
+import armbianio.ArmbianIoLib;
 
 /**
  * Simple LED blink
@@ -19,20 +19,23 @@ import armbianio.ArmbianIO;
 public class LedTest {
 
 	static {
-		System.load("/usr/local/lib/armbianio_java.so");
+		System.load("/usr/local/lib/libarmbianio.so");
 	}
 
 	public static void main(String argv[]) throws InterruptedException {
-		final int rc = ArmbianIO.AIOInit();
+		// Load shared library
+		final ArmbianIoLib armbianIoLib = (ArmbianIoLib) Native.loadLibrary("/usr/local/lib/libarmbianio.so",
+				ArmbianIoLib.class);
+		final int rc = armbianIoLib.AIOInit();
 		if (rc == 1) {
-			System.out.println(String.format("Running on a %s", ArmbianIO.AIOGetBoardName().trim()));
+			System.out.println(String.format("Running on a %s", armbianIoLib.AIOGetBoardName().trim()));
 			// Pin 12 set to output
 			final int pin = 12;
-			ArmbianIO.AIOAddGPIO(pin, ArmbianIOConstants.GPIO_OUT);
-			ArmbianIO.AIOWriteGPIO(pin, 0);
+			armbianIoLib.AIOAddGPIO(pin, ArmbianIoLib.GPIO_OUT);
+			armbianIoLib.AIOWriteGPIO(pin, 0);
 			TimeUnit.SECONDS.sleep(3);
-			ArmbianIO.AIOWriteGPIO(pin, 1);
-			ArmbianIO.AIOShutdown();
+			armbianIoLib.AIOWriteGPIO(pin, 1);
+			armbianIoLib.AIOShutdown();
 		}
 	}
 }
