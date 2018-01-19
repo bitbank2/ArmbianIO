@@ -27,7 +27,8 @@ Features
 - References GPIO pins by physical pin number
 - Includes functions for detecting presence of and reading status of on-board
   key/button (not all boards have one)
-- Swig is used to generate Python bindings (maybe other languages in the future) and includes example using ctypes
+- Python bindings are generated with ctypesgen
+- Java bindings use a simple interface file and JNA
  
 To build the C library, simply type 'make' in the terminal. To build the sample
 app, type 'make -f make_demo'. This will build the 'demo' executable to show
