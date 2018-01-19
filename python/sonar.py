@@ -124,8 +124,6 @@ if __name__ == "__main__":
         # Detect SBC
         rc = AIOInit()
         if rc == 1:
-            # Function returns char array
-            AIOGetBoardName.restype = c_char_p
             sonar.logger.info("Running on %s" % AIOGetBoardName().rstrip())
             # Set pin directions and echo callback
             sonar.configDevice()

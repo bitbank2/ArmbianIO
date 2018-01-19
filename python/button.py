@@ -22,12 +22,10 @@ def buttonCallback(iPin, iEdge):
 # Detect SBC
 rc = AIOInit()
 if rc == 1:
-    # Function returns char array
     print "Running on a %s" % AIOGetBoardName();
     if AIOHasButton():
-        button = 0
         # Button callback
-        AIOAddGPIOCallback(button, EDGE_BOTH, AIOCALLBACK(buttonCallback));
+        AIOAddGPIOCallback(0, EDGE_BOTH, AIOCALLBACK(buttonCallback));
         print "Press/release button a few times\n"
         time.sleep(10)
         # Remove callback

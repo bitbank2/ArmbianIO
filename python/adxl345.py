@@ -7,16 +7,13 @@ ADXL345 3-Axis, ±2 g/±4 g/±8 g/±16 g digital accelerometer
 -------------
 I'm using I2C to communicate with the ADXL345 although SPI is supported as
 well.
-
-Note: Stick with ctypes and do not mix armbianio wrapper module with ctypes
-since they are not interchangeable at runtime.
 """
 
 import time
 from armbianio.armbianio import *
 
 def getRange(handle):
-    """Retrieve the current range of the accelerometer.  See setRange for
+    """Retrieve the current range of the accelerometer. See setRange for
     the possible range constant values that will be returned.
     """
     retVal = "0"
@@ -24,10 +21,10 @@ def getRange(handle):
     return ord(retVal) & 0x03
 
 def setRange(handle, value):
-    """Set the range of the accelerometer to the provided value.
+    """Set the range of the accelerometer to the provided value. Read the data
+    format register to preserve bits. Update the data rate, make sure that the
+    FULL-RES bit is enabled for range scaling.
     """
-    # Read the data format register to preserve bits.  Update the data
-    # rate, make sure that the FULL-RES bit is enabled for range scaling
     retVal = "0"
     AIOReadI2C(handle, 0x31, retVal, 1)
     formatReg = ord(retVal) & ~0x0f
@@ -37,10 +34,9 @@ def setRange(handle, value):
     AIOWriteI2C(handle, 0x31, chr(formatReg), 1)
 
 def setDataRate(handle, rate):
-    """Set the data rate of the accelerometer.
+    """Set the data rate of the accelerometer. Note: The LOW_POWER bits are
+    currently ignored, we always keep the device in 'normal' mode.
     """
-    # Note: The LOW_POWER bits are currently ignored,
-    # we always keep the device in 'normal' mode
     AIOWriteI2C(handle, 0x2c, chr(rate & 0x0f), 1)
    
 def getDataRate(handle):
@@ -49,11 +45,6 @@ def getDataRate(handle):
     retVal = "0"
     AIOReadI2C(handle, 0x2c, retVal, 1)
     return ord(retVal) & 0x0f
-
-def intFix(value):
-    if value > 32767:
-        value -= 65535
-    return value
 
 def read(handle):
     """Retrieve the current data rate. X-axis data 0 (6 bytes for X/Y/Z).
@@ -90,7 +81,7 @@ if rc == 1:
                 setDataRate(handle, 0x0a)
                 print "Range = %d, data rate = %d" % (getRange(handle), getDataRate(handle))
                 count = 0
-                while count < 1000:
+                while count < 100:
                     data = read(handle)
                     print "x: %04d, y: %04d, z: %04d" % (data[0], data[1], data[2])
                     time.sleep(0.5)

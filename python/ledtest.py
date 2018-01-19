@@ -19,12 +19,13 @@ from armbianio.armbianio import *
 # Detect SBC
 rc = AIOInit()
 if rc == 1:
-    pin = 12
     # Pin 12 set to output
-    AIOAddGPIO(pin, GPIO_OUT)
-    AIOWriteGPIO(pin, 0)
+    AIOAddGPIO(12, GPIO_OUT)
+    # LED on
+    AIOWriteGPIO(12, 0)
     time.sleep(3)
-    AIOWriteGPIO(pin, 1)
+    # LED off
+    AIOWriteGPIO(12, 1)
     AIOShutdown()
 else:
     print "AIOInit error"
