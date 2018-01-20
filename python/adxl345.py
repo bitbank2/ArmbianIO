@@ -12,6 +12,7 @@ well.
 import time
 from armbianio.armbianio import *
 
+
 def getRange(handle):
     """Retrieve the current range of the accelerometer. See setRange for
     the possible range constant values that will be returned.
@@ -19,6 +20,7 @@ def getRange(handle):
     retVal = "0"
     AIOReadI2C(handle, 0x31, retVal, 1)
     return ord(retVal) & 0x03
+
 
 def setRange(handle, value):
     """Set the range of the accelerometer to the provided value. Read the data
@@ -33,11 +35,13 @@ def setRange(handle, value):
     # Write the updated format register
     AIOWriteI2C(handle, 0x31, chr(formatReg), 1)
 
+
 def setDataRate(handle, rate):
     """Set the data rate of the accelerometer. Note: The LOW_POWER bits are
     currently ignored, we always keep the device in 'normal' mode.
     """
     AIOWriteI2C(handle, 0x2c, chr(rate & 0x0f), 1)
+
    
 def getDataRate(handle):
     """Retrieve the current data rate.
@@ -45,6 +49,7 @@ def getDataRate(handle):
     retVal = "0"
     AIOReadI2C(handle, 0x2c, retVal, 1)
     return ord(retVal) & 0x0f
+
 
 def read(handle):
     """Retrieve the current data rate. X-axis data 0 (6 bytes for X/Y/Z).
@@ -54,19 +59,20 @@ def read(handle):
     # Convert string to tuple of 16 bit integers x, y, z
     x = ord(retVal[0]) | (ord(retVal[1]) << 8)
     if(x & (1 << 16 - 1)):
-        x = x - (1<<16)
+        x = x - (1 << 16)
     y = ord(retVal[2]) | (ord(retVal[3]) << 8)
     if(y & (1 << 16 - 1)):
-        y = y - (1<<16)
+        y = y - (1 << 16)
     z = ord(retVal[4]) | (ord(retVal[5]) << 8)
     if(z & (1 << 16 - 1)):
-        z = z - (1<<16)    
+        z = z - (1 << 16)    
     return (x, y, z)
+
 
 # Detect SBC
 rc = AIOInit()
 if rc == 1:
-    print "Running on a %s" % AIOGetBoardName();
+    print "Running on a %s" % AIOGetBoardName()
     # ADXL345 wired up to NanoPi Duo i2c-0 on port 0x53
     handle = AIOOpenI2C(0, 0x53)
     deviceId = "0"

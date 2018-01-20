@@ -15,23 +15,25 @@ better than the wiringPi wrapper that has a huge switch statement!
 import time
 from armbianio.armbianio import *
 
+
 # Simple callback displays pin and value
 def buttonCallback(iPin, iEdge):
     print "Button state: pin = %d, value = %d" % (iPin, iEdge)
 
+
 # Detect SBC
 rc = AIOInit()
 if rc == 1:
-    print "Running on a %s" % AIOGetBoardName();
+    print "Running on a %s" % AIOGetBoardName()
     if AIOHasButton():
         # Button callback
-        AIOAddGPIOCallback(0, EDGE_BOTH, AIOCALLBACK(buttonCallback));
+        AIOAddGPIOCallback(0, EDGE_BOTH, AIOCALLBACK(buttonCallback))
         print "Press/release button a few times\n"
         time.sleep(10)
         # Remove callback
         AIORemoveGPIO(0)
     else:
-        print "%s does not have a button" % AIOGetBoardName();
+        print "%s does not have a button" % AIOGetBoardName()
     AIOShutdown()
 else:
     print "AIOInit error"

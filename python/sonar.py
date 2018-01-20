@@ -23,6 +23,7 @@ is using a callback to drive sampling.
 import ConfigParser, logging, sys, os, traceback, time, datetime
 from armbianio.armbianio import *
 
+
 class sonar:
 
     def __init__(self, fileName):
@@ -81,7 +82,7 @@ class sonar:
         # Keep reference from being garbage collected and getting Segmentation fault
         self.callback = self.echoCallback
         # Echo callback
-        AIOAddGPIOCallback(self.echoPin, EDGE_BOTH, AIOCALLBACK(self.callback));
+        AIOAddGPIOCallback(self.echoPin, EDGE_BOTH, AIOCALLBACK(self.callback))
 
     def ping(self):
         """Ping with sound"""
@@ -112,6 +113,7 @@ class sonar:
                 self.logger.debug("Average distance: %0.2f" % (self.totalDist / self.sample))
                 self.sample = 0
                 self.totalDist = 0.0
+
 
 if __name__ == "__main__":
     try:

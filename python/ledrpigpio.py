@@ -3,7 +3,7 @@
 # See LICENSE.md for details.
 
 """
-Simple LED blink
+Simple LED blink using RPi.GPIO wrapper
 -------------
 Using the NanoPi Duo connect a 220Ω resistor to the anode (the long pin of
 the LED), then the resistor to 3.3 V, and connect the cathode (the short
@@ -14,19 +14,15 @@ See images/ledtest.jpg for schematic.
 """
 
 import time
-from armbianio.armbianio import *
+import RPi.GPIO as GPIO
 
-# Detect SBC
-rc = AIOInit()
-if rc == 1:
-    # Pin 12 set to output
-    AIOAddGPIO(12, GPIO_OUT)
-    # LED on
-    AIOWriteGPIO(12, 0)
-    time.sleep(3)
-    # LED off
-    AIOWriteGPIO(12, 1)
-    AIORemoveGPIO(12)
-    AIOShutdown()
-else:
-    print "AIOInit error"
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+# Pin 12 set to output
+GPIO.setup(12,GPIO.OUT)
+# LED on
+GPIO.output(12,GPIO.LOW)
+time.sleep(3)
+# LED off
+GPIO.output(12,GPIO.HIGH)
+GPIO.cleanup()

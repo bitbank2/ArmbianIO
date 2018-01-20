@@ -16,7 +16,7 @@ from armbianio.armbianio import *
 # Detect SBC
 rc = AIOInit()
 if rc == 1:
-    print "Running on a %s" % AIOGetBoardName();
+    print "Running on a %s" % AIOGetBoardName()
     # This works on a NanoPi Duo using /dev/spidev1.0, change as needed
     handle = AIOOpenSPI(1, 500000)
     writeStr = "Test worked!"

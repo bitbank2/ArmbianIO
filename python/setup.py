@@ -7,5 +7,5 @@ setup(name='armbianio',
       author='Steven P. Goldsmith',
       author_email='sgjava@gmail.com',
       license='GNU GENERAL PUBLIC LICENSE',
-      packages=['armbianio'],
+      packages=['armbianio', 'RPi'],
       zip_safe=False)
