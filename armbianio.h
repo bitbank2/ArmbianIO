@@ -32,7 +32,7 @@
 // Convenience function to behave like original API. Calls AIOInitBoard with
 // NULL
 //
-int AIOInit();
+int AIOInit(void);
 
 //
 // Initialize the library
