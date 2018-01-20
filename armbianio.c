@@ -530,6 +530,7 @@ void AIORemoveGPIO(int iPin)
 {
 int file_gpio, rc;
 char szTemp[64];
+int *pPins;
 
 	if (iBoardType == -1) // not initialized
 		return;
@@ -539,7 +540,8 @@ char szTemp[64];
 	{
 		close(iPinHandles[iPin]);
 		file_gpio = open("/sys/class/gpio/unexport", O_WRONLY);
-		sprintf(szTemp, "%d", iPin);
+		pPins = iPinLists[iBoardType];
+		sprintf(szTemp, "%d", pPins[iPin]);
 		rc = write(file_gpio, szTemp, strlen(szTemp));
 		close(file_gpio);
 		if (rc < 0) // suppress compiler warning
