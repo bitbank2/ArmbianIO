@@ -5,11 +5,7 @@
 """
 Simple callback using built in button
 -------------
-Since AIOAddGPIOCallback takes a C function pointer Swig generates unusable
-code which is ignored in armbianio.i. Another issue is that a GPIOThread
-is created, so trying to write a C wrapper calling a Python function causes
-segfaults. The work around is to use Python's ctypes module. This is way
-better than the wiringPi wrapper that has a huge switch statement!
+Should work on any board with a button built in.
 """
 
 import time
@@ -17,8 +13,8 @@ from armbianio.armbianio import *
 
 
 # Simple callback displays pin and value
-def buttonCallback(iPin, iEdge):
-    print "Button state: pin = %d, value = %d" % (iPin, iEdge)
+def buttonCallback(iPin):
+    print "Button state: pin = %d, value = %d" % (iPin, AIOReadGPIO(0))
 
 
 # Detect SBC

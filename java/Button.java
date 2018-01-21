@@ -22,8 +22,8 @@ public class Button {
 		if (rc == 1) {
 			System.out.println(String.format("Running on a %s", armbianIoLib.AIOGetBoardName()));
 			if (armbianIoLib.AIOHasButton() == 1) {
-				ArmbianIoLib.AIOCALLBACK func = (int iPin, int iEdge) -> {
-                    System.out.println(String.format("Button state: pin = %d, value = %d", iPin, iEdge));
+				ArmbianIoLib.AIOCALLBACK func = (int iPin) -> {
+                    System.out.println(String.format("Button state: pin = %d, value = %d", iPin, armbianIoLib.AIOReadGPIO(0)));
                 };
 				System.out.println("Press/release button a few times");
 				armbianIoLib.AIOAddGPIO(0, ArmbianIoLib.GPIO_IN);

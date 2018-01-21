@@ -12,6 +12,7 @@ board. Anything not implemented will raise NotImplementedError.
 Credit: rm-hull's OPi.GPIO is the basis for this code.
 """
 
+import time
 import warnings
 from armbianio.armbianio import *
 
@@ -23,6 +24,7 @@ LOW = False
 RISING = EDGE_RISING
 FALLING = EDGE_FALLING
 BOTH = EDGE_BOTH
+NONE = EDGE_NONE
 
 PUD_OFF = 0
 PUD_DOWN = 1
@@ -78,7 +80,8 @@ def setwarnings(enabled):
 
     
 def setup(channel, direction, initial=None, pull_up_down=None):
-    """You need to set up every channel you are using as an input or an output.
+    """Setup multiple pins as inputs or outputs at once. Pins are added to a
+    list by direction (IN or OUT).
     """
     if _mode is None:
         raise RuntimeError("Mode has not been set")
@@ -118,11 +121,36 @@ def output(channel, state):
 
 
 def wait_for_edge(channel, trigger, timeout=-1):
-    """Wait for an edge.   Pin should be type IN.  Edge must be RISING, FALLING
+    """Wait for an edge. Pin should be type IN. Edge must be RISING, FALLING
     or BOTH.
     """
     _check_configured(channel, direction=IN)
-    raise NotImplementedError
+    assert trigger in [RISING, FALLING, BOTH]
+    # See if event already exists        
+    if channel in _events:
+        raise RuntimeError("Conflicting edge detection already enabled for this GPIO channel")
+    AIOWriteGPIOEdge(channel, trigger)
+    startTime = time.time()
+    # Prime the pump
+    originalValue = AIOReadGPIO(channel)
+    value = originalValue
+    valueExit = False
+    timeoutExit = False
+    while not valueExit and not timeoutExit:
+        value = AIOReadGPIO(channel)
+        if value != originalValue:
+            if trigger == BOTH:
+                valueExit = True
+            else:
+                valueExit = value == trigger
+                originalValue = value
+        if timeout > 0:
+            timeoutExit = time.time() - startTime > timeout
+        # Not sure what the best delay value would be to be CPU friendly
+        # I should be able to use a generic callback to handle this instead
+        time.sleep(0.1)
+    AIOWriteGPIOEdge(channel, NONE)
+    return channel
 
 
 def add_event_detect(channel, trigger, callback=None, bouncetime=None):
@@ -151,9 +179,9 @@ def remove_event_detect(channel):
     _check_configured(channel, direction=IN)
     # See if event already exists        
     if channel in _events:
-        del _events[channel]
         # Remove callback
         AIORemoveGPIOCallback(channel)
+        del _events[channel]
     else:
         raise RuntimeError("No event exists for this GPIO channel")
 
@@ -196,9 +224,10 @@ def cleanup(channel=None):
             cleanup(ch)
     else:
         _check_configured(channel)
+        # Clean up event if it exists
+        if _events.get(channel) is not None:
+            AIORemoveGPIOCallback(channel)
+            del _events[channel]
         # Remove from ArmbianIO
         AIORemoveGPIO(channel)
         del _exports[channel]
-        # Clean up event if it exists
-        if _events.get(channel) is not None:
-            del _events[channel]

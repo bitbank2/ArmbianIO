@@ -56,8 +56,9 @@ class sonar:
         self.sample = 0
         self.totalDist = 0.0
         
-    def echoCallback(self, pin, value):
+    def echoCallback(self, pin):
         """Handle echo rising and falling"""
+        value = AIOReadGPIO(self.echoPin)
         # If rising then save time
         if value == EDGE_RISING:
             self.risingTime = time.time()

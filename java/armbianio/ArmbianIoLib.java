@@ -16,6 +16,7 @@ public interface ArmbianIoLib extends Library {
 	int EDGE_FALLING = 0;
 	int EDGE_RISING = 1;
 	int EDGE_BOTH = 2;
+	int EDGE_NONE = 3;
 	
 	int AIOInit();	
 
@@ -50,7 +51,7 @@ public interface ArmbianIoLib extends Library {
 	int AIOAddGPIO(int iPin, int iDirection);
 
 	interface AIOCALLBACK extends Callback {
-		void invoke(int iPin, int iState);
+		void invoke(int iPin);
 	}
 
 	int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback);
@@ -62,4 +63,6 @@ public interface ArmbianIoLib extends Library {
 	int AIOReadGPIO(int iPin);
 
 	int AIOWriteGPIO(int iPin, int iValue);
+	
+	int AIOWriteGPIOEdge(int iPin, int iEdge);
 }
