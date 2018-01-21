@@ -132,7 +132,10 @@ if __name__ == "__main__":
             sonar.loop()
         else:
             sonar.logger.error("SBC not detected")
-        # Clean up
+        # Remove callback
+        AIORemoveGPIOCallback(sonar.echoPin)
+        # Remove pin
+        AIORemoveGPIO(sonar.echoPin)
         AIOShutdown()
     except:
         # Add timestamp to errors

@@ -20,9 +20,9 @@ IN = 1
 HIGH = True
 LOW = False
 
-RISING = 1
-FALLING = 2
-BOTH = 3
+RISING = EDGE_RISING
+FALLING = EDGE_FALLING
+BOTH = EDGE_BOTH
 
 PUD_OFF = 0
 PUD_DOWN = 1
@@ -37,6 +37,7 @@ VERSION = "0.6.3"
 _gpio_warnings = True
 _mode = None
 _exports = {}
+_events = {}
 
 
 def _check_configured(channel, direction=None):
@@ -63,25 +64,21 @@ def setmode(mode):
     # Detect SBC when _mode is None
     if _mode is None:
         rc = AIOInit()
-        if rc == 1:
-            print "Running on a %s" % AIOGetBoardName()
-        else:
+        if rc != 1:
             raise RuntimeError("Board not detected")
     assert mode in [BCM, BOARD]
     _mode = mode
 
 
 def setwarnings(enabled):
-    """
-    Set to true to show warnings or False to turn warning off.
+    """Set to true to show warnings or False to turn warning off.
     """    
     global _gpio_warnings
     _gpio_warnings = enabled
 
     
 def setup(channel, direction, initial=None, pull_up_down=None):
-    """
-    You need to set up every channel you are using as an input or an output.
+    """You need to set up every channel you are using as an input or an output.
     """
     if _mode is None:
         raise RuntimeError("Mode has not been set")
@@ -102,8 +99,7 @@ def setup(channel, direction, initial=None, pull_up_down=None):
 
 
 def input(channel):
-    """
-    Read the value of a GPIO pin.
+    """Read the value of a GPIO pin.
     """
     # Can read from a pin configured for output
     _check_configured(channel)
@@ -111,8 +107,7 @@ def input(channel):
 
 
 def output(channel, state):
-    """
-    Set the output state of a GPIO pin.
+    """Set the output state of a GPIO pin.
     """
     if isinstance(channel, list):
         for ch in channel:
@@ -123,24 +118,30 @@ def output(channel, state):
 
 
 def wait_for_edge(channel, trigger, timeout=-1):
-    """
-    This function is designed to block execution of your program until an edge
-    is detected.
+    """Wait for an edge.   Pin should be type IN.  Edge must be RISING, FALLING
+    or BOTH.
     """
     _check_configured(channel, direction=IN)
     raise NotImplementedError
 
 
 def add_event_detect(channel, trigger, callback=None, bouncetime=None):
-    """This function is designed to be used in a loop with other things, but unlike
-    polling it is not going to miss the change in state of an input while the
-    CPU is busy working on other things.
+    """Enable edge detection events for a particular GPIO channel.  Pin should
+    be type IN.  Edge must be RISING, FALLING or BOTH.
     """
     _check_configured(channel, direction=IN)
+    assert trigger in [RISING, FALLING, BOTH]
     if bouncetime is not None:
         if _gpio_warnings:
             warnings.warn("bouncetime is not fully supported, continuing anyway. Use GPIO.setwarnings(False) to disable warnings.", stacklevel=2)
-    raise NotImplementedError
+    # See if event already exists        
+    if channel in _events:
+        raise RuntimeError("Conflicting edge detection already enabled for this GPIO channel")
+    else:
+        _events[channel] = trigger
+    # If callback exists then add it via ArmbianIO    
+    if callback is not None:
+        AIOAddGPIOCallback(channel, trigger, AIOCALLBACK(callback))            
 
 
 def remove_event_detect(channel):
@@ -148,7 +149,13 @@ def remove_event_detect(channel):
     IN.
     """
     _check_configured(channel, direction=IN)
-    raise NotImplementedError
+    # See if event already exists        
+    if channel in _events:
+        del _events[channel]
+        # Remove callback
+        AIORemoveGPIOCallback(channel)
+    else:
+        raise RuntimeError("No event exists for this GPIO channel")
 
 
 def add_event_callback(channel, callback, bouncetime=None):
@@ -159,13 +166,16 @@ def add_event_callback(channel, callback, bouncetime=None):
     if bouncetime is not None:
         if _gpio_warnings:
             warnings.warn("bouncetime is not fully supported, continuing anyway. Use GPIO.setwarnings(False) to disable warnings.", stacklevel=2)
-    raise NotImplementedError
+    # See if event exists        
+    if channel in _events:
+        AIOAddGPIOCallback(channel, _events[channel], AIOCALLBACK(callback))            
+    else:
+        raise RuntimeError("No event exists for this GPIO channel")
 
 
 def event_detected(channel):
-    """This function is designed to be used in a loop with other things, but
-    unlike polling it is not going to miss the change in state of an input
-    while the CPU is busy working on other things.
+    """Returns True if an edge has occured on a given GPIO.  You need to enable
+    edge detection using add_event_detect() first. Pin should be type IN.
     """
     _check_configured(channel, direction=IN)
     raise NotImplementedError
@@ -186,4 +196,9 @@ def cleanup(channel=None):
             cleanup(ch)
     else:
         _check_configured(channel)
+        # Remove from ArmbianIO
+        AIORemoveGPIO(channel)
         del _exports[channel]
+        # Clean up event if it exists
+        if _events.get(channel) is not None:
+            del _events[channel]
