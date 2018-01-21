@@ -124,11 +124,19 @@ int AIOReadButton(void);
 int AIOAddGPIO(int iPin, int iDirection);
 
 typedef void (*AIOCALLBACK)(int iPin, int iState);
+
 //
-// Configure a GPIO pin to call a function
-// when the state changes (interrupt)
+// Set edge to call the given function when the state
+// changes. AIOAddGPIO must be called first with direction
+// set to GPIO_IN
 //
 int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback); 
+
+//
+// Set pointer in callback list to NULL and set edge
+// to none
+//
+int AIORemoveGPIOCallback(int iPin);
 
 //
 // Release a GPIO pin

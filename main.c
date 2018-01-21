@@ -57,12 +57,14 @@ const char *szBoardName;
 	}
 #else // use interrupts
 	{
+		AIOAddGPIO(0, GPIO_IN);
 		AIOAddGPIOCallback(0, EDGE_BOTH, GPIOCallback);
 		// wait for presses
 		for (i=0; i<30; i++)
 		{
 			usleep(1000000);
 		}
+		AIORemoveGPIOCallback(0);
 		AIORemoveGPIO(0);
 	}
 #endif

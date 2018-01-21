@@ -118,7 +118,7 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			160,164,184,166,-1,167,162,-1,163,257,
 			-1,256,171,254,255,-1,251,233,234,165,
 			-1,168,239,238,-1,185,223,224,187,-1,
-			188}; 
+			188};
 
 static int *iPinLists[] = {iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iTinkerPins};
 static const char *szBoardNames[] = {"Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n","Tinkerboard\n",NULL};
@@ -315,7 +315,7 @@ int rc;
 	// followed by reading the data
 	rc = write(iHandle, &ucRegister, 1); // write the register value
 	if (rc == 1)
-	{	
+	{
 		rc = read(iHandle, buf, iCount);
 	}
 	return rc;
@@ -417,6 +417,9 @@ int timeout = 3000; // 3 seconds
 
 	while (1)
 	{
+		// If the callback is NULL then exit thread
+		if (!cbList[iPin])
+			return NULL;
 		memset(fdset, 0, sizeof(fdset));
 		fdset[0].fd = gpio_fd;
 		fdset[0].events = POLLPRI;
@@ -437,8 +440,9 @@ int timeout = 3000; // 3 seconds
 } /* GPIOThread() */
 
 //
-// Initialize a GPIO line for input and set it up
-// to call the given function when the state changes
+// Set edge to call the given function when the state
+// changes. AIOAddGPIO must be called first with direction
+// set to GPIO_IN
 //
 int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback)
 {
@@ -447,7 +451,7 @@ int file_gpio, rc;
 int *pPins;
 char *szEdges[] = {"falling\n","rising\n","both\n"};
 pthread_t tinfo;
- 
+
 	if (callback == NULL || iEdge < EDGE_FALLING || iEdge > EDGE_BOTH)
 		return 0;
 	if (iBoardType == -1) // not initialize
@@ -456,18 +460,6 @@ pthread_t tinfo;
 	if (pPins[iPin] == -1) // invalid pin
 		return 0;
 	cbList[iPin] = callback; // save the callback pointer
-
-	// Export the GPIO pin
-	file_gpio = open("/sys/class/gpio/export", O_WRONLY);
-	sprintf(szName, "%d", pPins[iPin]);
-	rc = write(file_gpio, szName, strlen(szName));
-	close(file_gpio);
-
-	// Set the pin direction to input
-	sprintf(szName, "/sys/class/gpio/gpio%d/direction", pPins[iPin]);
-	file_gpio = open(szName, O_WRONLY);
-	rc = write(file_gpio, "in\n", 3);
-	close(file_gpio);
 
 	// Set the pin edge type
 	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
@@ -487,6 +479,34 @@ pthread_t tinfo;
 
 	return 1;
 } /* AIOAddGPIOCallback() */
+
+//
+// Set pointer in callback list to NULL and set edge
+// to none
+//
+int AIORemoveGPIOCallback(int iPin)
+{
+char szName[64];
+int file_gpio, rc;
+int *pPins;
+
+	if (iBoardType == -1) // not initialize
+		return 0;
+	pPins = iPinLists[iBoardType];
+	if (pPins[iPin] == -1) // invalid pin
+		return 0;
+	cbList[iPin] = NULL; // This will force thread to exit
+	// Set the pin edge type
+	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
+	file_gpio = open(szName, O_WRONLY);
+	rc = write(file_gpio, "none\n", 5);
+	close(file_gpio);
+	if (rc < 0) // not all pins can be set for interrupts
+	{
+		return 0;
+	}
+	return 1;
+} /* AIORemoveGPIOCallback() */
 
 //
 // Initialize a GPIO line for input or output
