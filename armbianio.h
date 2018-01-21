@@ -24,6 +24,7 @@
 #define EDGE_FALLING 0
 #define EDGE_RISING 1
 #define EDGE_BOTH 2
+#define EDGE_NONE 3
 
 //
 // Initialize the library
@@ -123,7 +124,7 @@ int AIOReadButton(void);
 //
 int AIOAddGPIO(int iPin, int iDirection);
 
-typedef void (*AIOCALLBACK)(int iPin, int iState);
+typedef void (*AIOCALLBACK)(int iPin);
 
 //
 // Set edge to call the given function when the state
@@ -154,5 +155,10 @@ int AIOReadGPIO(int iPin);
 // Valid states are 1 (on) or 0 (off)
 //
 int AIOWriteGPIO(int iPin, int iValue);
+
+//
+// Set edge value for an open pin
+//
+int AIOWriteGPIOEdge(int iPin, int iEdge);
 
 #endif // _ARMBIANIO_H

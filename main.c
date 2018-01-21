@@ -27,9 +27,9 @@
 #include <time.h>
 #include <armbianio.h>
 
-void GPIOCallback(int iPin, int iValue)
+void GPIOCallback(int iPin)
 {
-	printf("Pin %d new value = %d\n", iPin, iValue);
+	printf("Button state: pin = %d, value = %d\n", iPin, AIOReadGPIO(iPin));
 } /* GPIOCallback() */
 
 int main(int argc, char* argv[])

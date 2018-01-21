@@ -395,6 +395,36 @@ int *pPins;
 } /* AIOWriteGPIO() */
 
 //
+// Set edge value for an open pin
+//
+int AIOWriteGPIOEdge(int iPin, int iEdge)
+{
+char szName[64];
+int file_gpio, rc;
+int *pPins;
+char *szEdges[] = {"falling\n","rising\n","both\n","none\n"};
+
+	if (iBoardType == -1) // not initialized
+		return 0;
+	if (iPin < 1 || iPin > iPinCount[iBoardType])
+		return 0;
+	if (iPinHandles[iPin] == -1) // not open yet
+	{
+		pPins = iPinLists[iBoardType];
+		// Set the mapped pin
+		sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
+		file_gpio = open(szName, O_WRONLY);
+		// Write edge type
+		rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
+		close(file_gpio);
+	}
+	if (rc < 0) // error
+	{ // do something
+	}
+	return 1;
+} /* AIOWriteGPIOEdge() */
+
+//
 // GPIO Monitoring thread (one for each pin)
 //
 void *GPIOThread(void *param)
@@ -402,7 +432,7 @@ void *GPIOThread(void *param)
 int iPin = (int)param; // pin number is passed in
 struct pollfd fdset[1];
 char szName[32], szTemp[64];
-int gpio_fd, iValue;
+int gpio_fd;
 int *pPins, rc;
 int timeout = 3000; // 3 seconds
 
@@ -428,12 +458,11 @@ int timeout = 3000; // 3 seconds
 		// clear the interrupt by reading the data
 		lseek(gpio_fd, 0, SEEK_SET);
 		rc = read(gpio_fd, szTemp, 64);
-		iValue = (szTemp[0] == '1');
 		// see if it was a valid interrupt event
 		if (fdset[0].revents & POLLPRI)
 		{
 			if (cbList[iPin])
-				(*cbList[iPin])(iPin, iValue);
+				(*cbList[iPin])(iPin);
 		}
 	}
 	return NULL;
@@ -496,9 +525,10 @@ int *pPins;
 	if (pPins[iPin] == -1) // invalid pin
 		return 0;
 	cbList[iPin] = NULL; // This will force thread to exit
-	// Set the pin edge type
+	// Set the mapped pin
 	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
 	file_gpio = open(szName, O_WRONLY);
+	// Write 'none' to edge
 	rc = write(file_gpio, "none\n", 5);
 	close(file_gpio);
 	if (rc < 0) // not all pins can be set for interrupts
