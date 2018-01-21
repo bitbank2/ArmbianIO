@@ -28,6 +28,7 @@ Features
 - Includes functions for detecting presence of and reading status of on-board
   key/button (not all boards have one)
 - Python bindings are generated with ctypesgen
+_ Cross platform RPi.GPIO clone is in the works
 - Java bindings use a simple interface file and JNA
  
 To build the C library, simply type 'make' in the terminal. To build the sample
