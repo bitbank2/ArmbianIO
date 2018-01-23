@@ -54,7 +54,7 @@ public interface ArmbianIoLib extends Library {
 		void invoke(int iPin);
 	}
 
-	int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback);
+	int AIOAddGPIOCallback(int iPin, AIOCALLBACK callback);
 	
 	int AIORemoveGPIOCallback(int iPin);
 

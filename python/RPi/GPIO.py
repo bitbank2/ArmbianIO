@@ -9,7 +9,7 @@ The goal here is to eliminate one off RPi.GPIO implementations since ArmbianIO
 supports many different SBCs. Here we are relying on AIOInit() to decect the
 board. Anything not implemented will raise NotImplementedError.
 
-Credit: rm-hull's OPi.GPIO is the basis for this code.
+Credit: rm-hull's OPi.GPIO gave me some good ideas.
 """
 
 import time
@@ -38,7 +38,9 @@ VERSION = "0.6.3"
 
 _gpio_warnings = True
 _mode = None
+_wait_for_edge = False
 _exports = {}
+_callbacks = {}
 _events = {}
 
 
@@ -81,7 +83,7 @@ def setwarnings(enabled):
     
 def setup(channel, direction, initial=None, pull_up_down=None):
     """Setup multiple pins as inputs or outputs at once. Pins are added to a
-    list by direction (IN or OUT).
+    dict by direction (IN or OUT).
     """
     if _mode is None:
         raise RuntimeError("Mode has not been set")
@@ -119,38 +121,44 @@ def output(channel, state):
         _check_configured(channel, direction=OUT)
         AIOWriteGPIO(channel, state)
 
+# This will prevent the sleep from missing an edge event
+def wait_for_edge_callback(channel):
+    global _wait_for_edge
+    _wait_for_edge = True
 
 def wait_for_edge(channel, trigger, timeout=-1):
     """Wait for an edge. Pin should be type IN. Edge must be RISING, FALLING
-    or BOTH.
+    or BOTH. Warning this is not a thread safe function since a global flag
+    is used to detect edge change.
     """
+    startTime = time.time()
     _check_configured(channel, direction=IN)
     assert trigger in [RISING, FALLING, BOTH]
-    # See if event already exists        
+    # See if channel in use by events        
     if channel in _events:
-        raise RuntimeError("Conflicting edge detection already enabled for this GPIO channel")
-    AIOWriteGPIOEdge(channel, trigger)
-    startTime = time.time()
-    # Prime the pump
-    originalValue = AIOReadGPIO(channel)
-    value = originalValue
-    valueExit = False
+        raise RuntimeError("Event enabled for channel %d" % channel)
+    # See if channel in use by callback        
+    if channel in _callbacks:
+        raise RuntimeError("Callback enabled for channel %d" % channel)
+    add_event_detect(channel, trigger, callback=wait_for_edge_callback)
     timeoutExit = False
-    while not valueExit and not timeoutExit:
-        value = AIOReadGPIO(channel)
-        if value != originalValue:
-            if trigger == BOTH:
-                valueExit = True
-            else:
-                valueExit = value == trigger
-                originalValue = value
+    global _wait_for_edge
+    _wait_for_edge = False
+    while not _wait_for_edge and not timeoutExit:
         if timeout > 0:
             timeoutExit = time.time() - startTime > timeout
-        # Not sure what the best delay value would be to be CPU friendly
-        # I should be able to use a generic callback to handle this instead
+        # Could be up to 1/10th of a second before edge change is detected,
+        # but it will not be missed during sleep    
         time.sleep(0.1)
+    # Remove callback from ArmbianIO
+    AIORemoveGPIOCallback(channel)
+    del _callbacks[channel]
+    # Set edge to none
     AIOWriteGPIOEdge(channel, NONE)
-    return channel
+    del _events[channel]
+    _wait_for_edge = False
+    if not timeoutExit:
+        return channel
 
 
 def add_event_detect(channel, trigger, callback=None, bouncetime=None):
@@ -162,14 +170,15 @@ def add_event_detect(channel, trigger, callback=None, bouncetime=None):
     if bouncetime is not None:
         if _gpio_warnings:
             warnings.warn("bouncetime is not fully supported, continuing anyway. Use GPIO.setwarnings(False) to disable warnings.", stacklevel=2)
-    # See if event already exists        
+    # See if channel in use by events        
     if channel in _events:
-        raise RuntimeError("Conflicting edge detection already enabled for this GPIO channel")
-    else:
-        _events[channel] = trigger
-    # If callback exists then add it via ArmbianIO    
+        raise RuntimeError("Event enabled for channel %d" % channel)
+    # Set edge
+    AIOWriteGPIOEdge(channel, trigger)
+    _events[channel] = trigger
+    # If callback passed then set it    
     if callback is not None:
-        AIOAddGPIOCallback(channel, trigger, AIOCALLBACK(callback))            
+        add_event_callback(channel, callback, bouncetime)
 
 
 def remove_event_detect(channel):
@@ -177,32 +186,35 @@ def remove_event_detect(channel):
     IN.
     """
     _check_configured(channel, direction=IN)
-    # See if event already exists        
+    # See if channel in use by events        
     if channel in _events:
-        # Remove callback
-        AIORemoveGPIOCallback(channel)
+        # Set edge to none
+        AIOWriteGPIOEdge(channel, NONE)
         del _events[channel]
     else:
-        raise RuntimeError("No event exists for this GPIO channel")
+        raise RuntimeError("No event enabled for channel %d" % channel)
 
 
 def add_event_callback(channel, callback, bouncetime=None):
-    """Enable edge detection events for a particular GPIO channel. Pin should
-    be type IN.  Edge must be RISING, FALLING or BOTH.
+    """Add a callback for an event already defined using add_event_detect().
+    Pin should be type IN.
     """
     _check_configured(channel, direction=IN)
     if bouncetime is not None:
         if _gpio_warnings:
             warnings.warn("bouncetime is not fully supported, continuing anyway. Use GPIO.setwarnings(False) to disable warnings.", stacklevel=2)
-    # See if event exists        
-    if channel in _events:
-        AIOAddGPIOCallback(channel, _events[channel], AIOCALLBACK(callback))            
-    else:
-        raise RuntimeError("No event exists for this GPIO channel")
+    # See if channel in use by events        
+    if channel not in _events:
+        raise RuntimeError("No event enabled for channel %d" % channel)
+    # See if channel in use by callback        
+    #if channel in _callbacks:
+    #    raise RuntimeError("Callback enabled for channel %d" % channel)
+    AIOAddGPIOCallback(channel, AIOCALLBACK(callback))
+    _callbacks[channel] = _events[channel]
 
 
 def event_detected(channel):
-    """Returns True if an edge has occured on a given GPIO.  You need to enable
+    """Returns True if an edge has occured on a given GPIO. You need to enable
     edge detection using add_event_detect() first. Pin should be type IN.
     """
     _check_configured(channel, direction=IN)
@@ -224,9 +236,15 @@ def cleanup(channel=None):
             cleanup(ch)
     else:
         _check_configured(channel)
-        # Clean up event if it exists
-        if _events.get(channel) is not None:
+        # Clean up callback if it exists
+        if _callbacks.get(channel) is not None:
+            # Remove from ArmbianIO
             AIORemoveGPIOCallback(channel)
+            del _callbacks[channel]
+        # See if channel in use by events        
+        if channel in _events:
+            # Set edge to none
+            AIOWriteGPIOEdge(channel, NONE)
             del _events[channel]
         # Remove from ArmbianIO
         AIORemoveGPIO(channel)

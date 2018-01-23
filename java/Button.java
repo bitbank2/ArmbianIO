@@ -26,13 +26,15 @@ public class Button {
                     System.out.println(String.format("Button state: pin = %d, value = %d", iPin, armbianIoLib.AIOReadGPIO(0)));
                 };
 				System.out.println("Press/release button a few times");
-				armbianIoLib.AIOAddGPIO(0, ArmbianIoLib.GPIO_IN);
-				armbianIoLib.AIOAddGPIOCallback(0, ArmbianIoLib.EDGE_BOTH, func);
+				// AIOAddGPIO not required for button
+				armbianIoLib.AIOWriteGPIOEdge(0, ArmbianIoLib.EDGE_BOTH);
+				armbianIoLib.AIOAddGPIOCallback(0, func);
 				TimeUnit.SECONDS.sleep(10);
 				// Remove callback
 				armbianIoLib.AIORemoveGPIOCallback(0);
-				// Remove pin (actually you cannot remove the button)
-				armbianIoLib.AIORemoveGPIO(0);
+				// Set edge to none
+				armbianIoLib.AIOWriteGPIOEdge(0, ArmbianIoLib.EDGE_NONE);
+				// AIORemoveGPIO not required for button
 			} else {
 				System.out.println(String.format("%s does not have a button", armbianIoLib.AIOGetBoardName()));
 			}

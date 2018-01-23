@@ -82,8 +82,10 @@ class sonar:
         AIOAddGPIO(self.echoPin, GPIO_IN)
         # Keep reference from being garbage collected and getting Segmentation fault
         self.callback = self.echoCallback
+        # Set edge to both
+        AIOWriteGPIOEdge(0, EDGE_BOTH)
         # Echo callback
-        AIOAddGPIOCallback(self.echoPin, EDGE_BOTH, AIOCALLBACK(self.callback))
+        AIOAddGPIOCallback(0, AIOCALLBACK(self.callback))      
 
     def ping(self):
         """Ping with sound"""
@@ -133,10 +135,13 @@ if __name__ == "__main__":
             sonar.loop()
         else:
             sonar.logger.error("SBC not detected")
-        # Remove callback
+        # Remove callback    
         AIORemoveGPIOCallback(sonar.echoPin)
-        # Remove pin
+        # Set edge to none
+        AIOWriteGPIOEdge(0, EDGE_NONE)
+        # Remove pins
         AIORemoveGPIO(sonar.echoPin)
+        AIORemoveGPIO(sonar.triggerPin)
         AIOShutdown()
     except:
         # Add timestamp to errors

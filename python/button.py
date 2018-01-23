@@ -22,15 +22,16 @@ rc = AIOInit()
 if rc == 1:
     print "Running on a %s" % AIOGetBoardName()
     if AIOHasButton():
-        AIOAddGPIO(0, GPIO_IN)
-        # Button callback
-        AIOAddGPIOCallback(0, EDGE_BOTH, AIOCALLBACK(buttonCallback))
+        # AIOAddGPIO not required for button
+        AIOWriteGPIOEdge(0, EDGE_BOTH)
+        # Add callback
+        AIOAddGPIOCallback(0, AIOCALLBACK(buttonCallback))        
         print "Press/release button a few times\n"
         time.sleep(10)
-        # Remove callback
         AIORemoveGPIOCallback(0)
-        # Remove pin (actually you cannot remove the button)
-        AIORemoveGPIO(0)
+        # Set edge to none
+        AIOWriteGPIOEdge(0, EDGE_NONE)
+        # AIORemoveGPIO not required for button
     else:
         print "%s does not have a button" % AIOGetBoardName()
     AIOShutdown()
