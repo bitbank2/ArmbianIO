@@ -404,20 +404,19 @@ int file_gpio, rc;
 int *pPins;
 char *szEdges[] = {"falling\n","rising\n","both\n","none\n"};
 
+	if (iEdge < EDGE_FALLING || iEdge > EDGE_NONE)
+		return 0;
 	if (iBoardType == -1) // not initialized
 		return 0;
-	if (iPin < 1 || iPin > iPinCount[iBoardType])
+	if (iPin < 0 || iPin > iPinCount[iBoardType])
 		return 0;
-	if (iPinHandles[iPin] == -1) // not open yet
-	{
-		pPins = iPinLists[iBoardType];
-		// Set the mapped pin
-		sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
-		file_gpio = open(szName, O_WRONLY);
-		// Write edge type
-		rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
-		close(file_gpio);
-	}
+	pPins = iPinLists[iBoardType];
+	// Set the mapped pin
+	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
+	file_gpio = open(szName, O_WRONLY);
+	// Write edge type
+	rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
+	close(file_gpio);
 	if (rc < 0) // error
 	{ // do something
 	}
@@ -448,7 +447,7 @@ int timeout = 3000; // 3 seconds
 	while (1)
 	{
 		// If the callback is NULL then exit thread
-		if (!cbList[iPin])
+		if (cbList[iPin] == NULL)
 			return NULL;
 		memset(fdset, 0, sizeof(fdset));
 		fdset[0].fd = gpio_fd;
@@ -473,50 +472,28 @@ int timeout = 3000; // 3 seconds
 // changes. AIOAddGPIO must be called first with direction
 // set to GPIO_IN
 //
-int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback)
+int AIOAddGPIOCallback(int iPin, AIOCALLBACK callback)
 {
-char szName[64];
-int file_gpio, rc;
 int *pPins;
-char *szEdges[] = {"falling\n","rising\n","both\n"};
 pthread_t tinfo;
 
-	if (callback == NULL || iEdge < EDGE_FALLING || iEdge > EDGE_BOTH)
-		return 0;
 	if (iBoardType == -1) // not initialize
 		return 0;
 	pPins = iPinLists[iBoardType];
 	if (pPins[iPin] == -1) // invalid pin
 		return 0;
 	cbList[iPin] = callback; // save the callback pointer
-
-	// Set the pin edge type
-	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
-	file_gpio = open(szName, O_WRONLY);
-	rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
-	close(file_gpio);
-	if (rc < 0) // not all pins can be set for interrupts
-	{
-		return 0;
-	}
 	// Start a thread to manage the interrupt/callback
 	pthread_create(&tinfo, NULL, GPIOThread, (void *)iPin);
-
-	if (rc < 0) // added to suppress compiler warnings
-	{ // do nothing
-	}
-
 	return 1;
 } /* AIOAddGPIOCallback() */
 
 //
-// Set pointer in callback list to NULL and set edge
-// to none
+// Set pointer in callback list to NULL to cause
+// thread to exit
 //
 int AIORemoveGPIOCallback(int iPin)
 {
-char szName[64];
-int file_gpio, rc;
 int *pPins;
 
 	if (iBoardType == -1) // not initialize
@@ -525,16 +502,6 @@ int *pPins;
 	if (pPins[iPin] == -1) // invalid pin
 		return 0;
 	cbList[iPin] = NULL; // This will force thread to exit
-	// Set the mapped pin
-	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
-	file_gpio = open(szName, O_WRONLY);
-	// Write 'none' to edge
-	rc = write(file_gpio, "none\n", 5);
-	close(file_gpio);
-	if (rc < 0) // not all pins can be set for interrupts
-	{
-		return 0;
-	}
 	return 1;
 } /* AIORemoveGPIOCallback() */
 

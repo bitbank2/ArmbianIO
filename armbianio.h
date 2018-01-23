@@ -131,7 +131,7 @@ typedef void (*AIOCALLBACK)(int iPin);
 // changes. AIOAddGPIO must be called first with direction
 // set to GPIO_IN
 //
-int AIOAddGPIOCallback(int iPin, int iEdge, AIOCALLBACK callback); 
+int AIOAddGPIOCallback(int iPin, AIOCALLBACK callback);
 
 //
 // Set pointer in callback list to NULL and set edge
