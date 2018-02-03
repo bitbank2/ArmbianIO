@@ -50,6 +50,13 @@ static AIOCALLBACK cbList[MAX_PINS];
 // and can be used for GPIOs as well.
 //
 
+// Le potato
+static int ipotatoPins[] = {-1,-1,-1,5,-1,4,-1,108,101,-1,
+							102,-1,6,9,-1,110,103,-1,104,97,
+							-1,98,89,100,99,-1,90,85,86,106,
+							-1,107,105,95,-1,96,91,94,92,-1,
+							93};
+
 // Banana Pi M2 Zero
 static int iBPIZPins[] = {355,-1,-1,12,-1,11,-1,6,13,-1,
 			14,1,110,0,-1,3,15,-1,68,64,
@@ -86,7 +93,7 @@ static int iOPIZPins[] = {-1,-1,-1,12,-1,11,-1,6,198,-1,
 			199,1,7,0,-1,3,19,-1,18,15,
 			-1,16,2,14,13,-1,10,-1,5,4}; // last 3 pins are TTY header
 
-// Nano Pi Duo
+// NanoPi Duo
 static int iNPDPins[] = {355,5,-1,4,-1,-1,-1,11,-1,12,
 			363,13,203,14,-1,16,-1,15,-1,199,
 			-1,198,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -99,7 +106,7 @@ static int iNP2Pins[] = {0,-1,-1,99,-1,98,-1,32+28,96+21,-1,
 			-1,64+9,64+28,64+10,-1,64+12,64+7,64+11,162,-1,
 			163};
 
-// Nano Pi K2
+// NanoPi K2
 static int iNPK2Pins[] = {3,-1,-1,205,-1,206,-1,211,102,-1,
 			225,212,227,213,-1,214,226,-1,215,216,
 			-1,218,217,220,219,-1,221,207,208,222,
@@ -120,10 +127,10 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188};
 
-static int *iPinLists[] = {iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iTinkerPins};
-static const char *szBoardNames[] = {"Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "Tinkerboard\n",NULL};
+static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iTinkerPins};
+static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {40,40,29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
+static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40}; // number of pins in the header
 
 //
 // Close any open handles to GPIO pins and
