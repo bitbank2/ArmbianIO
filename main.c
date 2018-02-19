@@ -77,9 +77,9 @@ const char *szBoardName;
 		AIOAddGPIO(12, GPIO_OUT);
 		for (i=0; i<10; i++)
 		{
-			AIOWriteGPIO(37, 1);
+			AIOWriteGPIO(12, 1);
 			usleep(500000);
-			AIOWriteGPIO(37, 0);
+			AIOWriteGPIO(12, 0);
 			usleep(500000);
 		}
 	}
