@@ -73,13 +73,13 @@ const char *szBoardName;
 	else
 	{
 // blink an LED on pin 3
-		printf("Attempting to blink an LED on pin 3\n");
-		AIOAddGPIO(3, GPIO_OUT);
+		printf("Attempting to blink an LED on pin 4\n");
+		AIOAddGPIO(4, GPIO_OUT);
 		for (i=0; i<10; i++)
 		{
-			AIOWriteGPIO(3, 1);
+			AIOWriteGPIO(4, 1);
 			usleep(500000);
-			AIOWriteGPIO(3, 0);
+			AIOWriteGPIO(4, 0);
 			usleep(500000);
 		}
 	}
