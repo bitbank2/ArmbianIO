@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//python/RPi/GPIO.py=utf-8
+encoding//python/RPi/__init__.py=utf-8
+encoding//python/adxl345.py=utf-8
+encoding//python/button.py=utf-8
+encoding//python/ledrpigpio.py=utf-8
+encoding//python/ledtest.py=utf-8
+encoding//python/sonar.py=utf-8
