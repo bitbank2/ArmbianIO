@@ -35,7 +35,7 @@
 
 static struct spi_ioc_transfer xfer;
 // Maximum header pins for all supported boards
-#define MAX_PINS 43
+#define MAX_PINS IR_PIN+1
 static int iPinHandles[MAX_PINS]; // keep file handles open for GPIO access
 static AIOCALLBACK cbList[MAX_PINS];
 //
@@ -131,6 +131,8 @@ static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2
 static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "NanoPi Neo 2\n", "Tinkerboard\n",NULL};
 static int iBoardType;
 static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,41}; // number of pins in the header
+// GPIO number of on-board IR receiver
+static int iIR_GPIO[] = {0, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //
 // Close any open handles to GPIO pins and
@@ -205,6 +207,18 @@ int i;
 	AIOAddGPIO(0, GPIO_IN);
 	return 1; // success
 } /* AIOInit() */
+
+//
+// Boolean indicating if the current PCB has an on-board IR receiver module
+//
+int AIOHasIR(void)
+{
+	if (iBoardType != -1)
+	{
+		return (iIR_GPIO[iBoardType] != 0);
+	}
+	return 0;
+} /* AIOHasIR() */
 
 //
 // Boolean indicating if the current PCB has a button/key on it
@@ -353,13 +367,17 @@ int *pPins;
 
 	if (iBoardType == -1) // library not initialized
 		return -1;
-	if (iPin < 0 || iPin > iPinCount[iBoardType]) // invalid pin number for this board
+	if (iPin < 0 || (iPin != IR_PIN && iPin > iPinCount[iBoardType])) // invalid pin number for this board
 		return -1;
-
+	if (iPin == IR_PIN && iIR_GPIO[iBoardType] == 0) // no IR receiver
+		return -1;
 	if (iPinHandles[iPin] == -1)
 	{
 		pPins = iPinLists[iBoardType];
-		iGPIO = pPins[iPin];
+		if (iPin == IR_PIN)
+			iGPIO = iIR_GPIO[iBoardType];
+		else
+			iGPIO = pPins[iPin];
 		sprintf(szTemp, "/sys/class/gpio/gpio%d/value", iGPIO);
 		iPinHandles[iPin] = open(szTemp, O_RDONLY);
 	}
@@ -407,7 +425,7 @@ int *pPins;
 int AIOWriteGPIOEdge(int iPin, int iEdge)
 {
 char szName[64];
-int file_gpio, rc;
+int file_gpio, rc, iGPIO;
 int *pPins;
 char *szEdges[] = {"falling\n","rising\n","both\n","none\n"};
 
@@ -415,11 +433,15 @@ char *szEdges[] = {"falling\n","rising\n","both\n","none\n"};
 		return 0;
 	if (iBoardType == -1) // not initialized
 		return 0;
-	if (iPin < 0 || iPin > iPinCount[iBoardType])
+	if (iPin < 0 || (iPin != IR_PIN && iPin > iPinCount[iBoardType]))
 		return 0;
 	pPins = iPinLists[iBoardType];
 	// Set the mapped pin
-	sprintf(szName, "/sys/class/gpio/gpio%d/edge", pPins[iPin]);
+	if (iPin == IR_PIN)
+		iGPIO = iIR_GPIO[iBoardType];
+	else
+		iGPIO = pPins[iPin];
+	sprintf(szName, "/sys/class/gpio/gpio%d/edge", iGPIO);
 	file_gpio = open(szName, O_WRONLY);
 	// Write edge type
 	rc = write(file_gpio, szEdges[iEdge], strlen(szEdges[iEdge]));
@@ -439,12 +461,16 @@ int iPin = (int)param; // pin number is passed in
 struct pollfd fdset[1];
 char szName[32], szTemp[64];
 int gpio_fd;
-int *pPins, rc;
+int *pPins, rc, iGPIO;
 int timeout = 3000; // 3 seconds
 
 	pPins = iPinLists[iBoardType];
 
-	sprintf(szName, "/sys/class/gpio/gpio%d/value", pPins[iPin]);
+	if (iPin == IR_PIN)
+		iGPIO = iIR_GPIO[iBoardType];
+	else
+		iGPIO = pPins[iPin];
+	sprintf(szName, "/sys/class/gpio/gpio%d/value", iGPIO);
 	gpio_fd = open(szName, O_RDONLY);
 	if (gpio_fd < 0) // something went wrong
 		return NULL;
@@ -487,7 +513,7 @@ pthread_t tinfo;
 	if (iBoardType == -1) // not initialize
 		return 0;
 	pPins = iPinLists[iBoardType];
-	if (pPins[iPin] == -1) // invalid pin
+	if (iPin != IR_PIN && pPins[iPin] == -1) // invalid pin
 		return 0;
 	cbList[iPin] = callback; // save the callback pointer
 	// Start a thread to manage the interrupt/callback
@@ -501,12 +527,10 @@ pthread_t tinfo;
 //
 int AIORemoveGPIOCallback(int iPin)
 {
-int *pPins;
 
 	if (iBoardType == -1) // not initialize
 		return 0;
-	pPins = iPinLists[iBoardType];
-	if (pPins[iPin] == -1) // invalid pin
+	if (cbList[iPin] == NULL) // invalid pin
 		return 0;
 	cbList[iPin] = NULL; // This will force thread to exit
 	return 1;
@@ -520,19 +544,25 @@ int *pPins;
 int AIOAddGPIO(int iPin, int iDirection)
 {
 char szName[64];
-int file_gpio, rc;
+int file_gpio, rc, iGPIO;
 int *pPins;
 
 	if (iBoardType == -1) // not initialize
 		return 0;
 	pPins = iPinLists[iBoardType];
-	if (pPins[iPin] == -1) // invalid pin
+	if (iPin != IR_PIN && pPins[iPin] == -1) // invalid pin
 		return 0;
+	if (iPin == IR_PIN && iIR_GPIO[iBoardType] == 0)
+		return 0; // invalid IR pin
 	file_gpio = open("/sys/class/gpio/export", O_WRONLY);
-	sprintf(szName, "%d", pPins[iPin]);
+	if (iPin == IR_PIN)
+		iGPIO = iIR_GPIO[iBoardType];
+	else
+		iGPIO = pPins[iPin];
+	sprintf(szName, "%d", iGPIO);
 	rc = write(file_gpio, szName, strlen(szName));
 	close(file_gpio);
-	sprintf(szName, "/sys/class/gpio/gpio%d/direction", pPins[iPin]);
+	sprintf(szName, "/sys/class/gpio/gpio%d/direction", iGPIO);
 	file_gpio = open(szName, O_WRONLY);
 	if (iDirection == GPIO_OUT)
 		rc = write(file_gpio, "out\n", 4);
@@ -558,7 +588,7 @@ int *pPins;
 
 	if (iBoardType == -1) // not initialized
 		return;
-	if (iPin < 1 || iPin > iPinCount[iBoardType]) // invalid pin
+	if (iPin < 1 || iPin > MAX_PINS) // invalid pin
 		return;
 	if (iPinHandles[iPin] != -1)
 	{

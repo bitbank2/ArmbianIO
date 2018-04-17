@@ -25,7 +25,9 @@
 #define EDGE_RISING 1
 #define EDGE_BOTH 2
 #define EDGE_NONE 3
-
+// Virtual header pin number to access the on-board IR receiver module
+// with GPIO functions (since it's just a digital input connected to a GPIO)
+#define IR_PIN 50
 //
 // Initialize the library
 // 1 = success, 0 = failure
@@ -107,6 +109,11 @@ int AIOWriteSPI(int iHandle, unsigned char *buf, int iCount);
 // returns the number of bytes transferred or -1 for error
 //
 int AIOReadWriteSPI(int iHandle, unsigned char *inbuf, unsigned char *outbuf, int iCount);
+
+//
+// Boolean indicating if the current PCB has a built-in IR receiver
+//
+int AIOHasIR(void);
 
 //
 // Boolean indicating if the current PCB has a button/key on it
