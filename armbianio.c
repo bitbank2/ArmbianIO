@@ -548,19 +548,20 @@ long getTimeInMicroseconds()
 
 //
 // GPIO Monitoring thread for IR (one for each pin)
+// Code length must be less than 50.
 //
 void *GPIOIRThread(void *param)
 {
 int iPin = (int)param; // pin number is passed in
+int endOfCodeTimeOut = 3; // after 3 ms we think code has ended.
 struct pollfd fdset[1];
 char szName[32], szTemp[64];
 int gpio_fd;
 int *pPins, rc, iGPIO;
 int timeout = 3000; // 3 seconds
 long start = getTimeInMicroseconds();
-long currentCodeLong[30];
+int currentCode[52];
 int codePointer = 0;
-char *retStr = (char*)calloc(30, sizeof(char));
 
 	pPins = iPinLists[iBoardType];
 
@@ -584,7 +585,6 @@ char *retStr = (char*)calloc(30, sizeof(char));
 		fdset[0].fd = gpio_fd;
 		fdset[0].events = POLLPRI;
 		rc = poll(&fdset[0], 1, timeout);
-		//printf("hiero\n");
 		if (rc < 0) return NULL;
 		// clear the interrupt by reading the data
 		lseek(gpio_fd, 0, SEEK_SET);
@@ -595,45 +595,26 @@ char *retStr = (char*)calloc(30, sizeof(char));
 			long now = getTimeInMicroseconds();
 			long between = now - start;
 //			printf("between: %11d\n", between);
-			currentCodeLong[codePointer] = between;
+			currentCode[codePointer] = (int) between;
 			codePointer++;
-			timeout = 3;
+			timeout = endOfCodeTimeOut;
 			start = now;
-
 //			printf("cp: %d", codePointer);
-			if(codePointer > 28) {
+			if(codePointer > 50) { // max code length reached, send what we have.
+			    if (cbIRList[iPin])
+                    (*cbIRList[iPin])(currentCode);
 				codePointer = 0;
-				for(int i = 0; i < 30; i++) { currentCodeLong[i] = 0; }
+				for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
 			}
-		} else if(timeout == 3) {
-			if(codePointer > 18) {
-				//printf("Between: %d\n", getTimeInMicroseconds() - start);
-				//printf("Code received\n");
-				char * retFiller = retStr;
-				for(int i = 0; i < 30; i++) {
-					int l = currentCodeLong[i];
-					if(l > 3000) {}
-					else if(l < 400) {
-						*retFiller = ' ';
-						retFiller++;
-					} else if(l < 1200) {
-						*retFiller = 'S';
-						retFiller++;
-					} else {
-						*retFiller = 'L';
-						retFiller++;
-					}
-				}
-				retFiller = '\0';
-				//printf("code received: %s\n", retStr);
-				if (cbIRList[iPin])
-					(*cbIRList[iPin])(retStr);
-			} else {
-				//printf("code timeout\n");
-			}
-			timeout = 3000;
+		} else if(timeout == endOfCodeTimeOut) { // are we receiving a code currently?
+            //printf("Between: %d\n", getTimeInMicroseconds() - start);
+            if (cbIRList[iPin])
+                (*cbIRList[iPin])(currentCode);
+			timeout = 3000; // wait for next code again, with the default timeout
 			codePointer = 0;
-			for(int i = 0; i < 30; i++) { currentCodeLong[i] = 0; }
+			for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
+		} else {
+		    printf("Code timeout\n");
 		}
 	}
 	return NULL;

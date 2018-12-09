@@ -146,8 +146,8 @@ int AIOAddGPIOCallback(int iPin, AIOCALLBACK callback);
 //
 int AIORemoveGPIOCallback(int iPin);
 
-// The IR counter parts
-typedef void (*AIOIRCALLBACK)(char *code);
+// The IR counterparts
+typedef void (*AIOIRCALLBACK)(int *codeArray);
 int AIOAddGPIOIRCallback(int iPin, AIOIRCALLBACK callback);
 int AIORemoveGPIOIRCallback(int iPin);
 

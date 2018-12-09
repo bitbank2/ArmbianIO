@@ -31,3 +31,4 @@ javac -cp jna-4.5.0.jar armbianio/ArmbianIoLib.java
 # Compile demo code
 javac -cp jna-4.5.0.jar:armbianio.jar LedTest.java
 javac -cp jna-4.5.0.jar:armbianio.jar Button.java
+javac -cp jna-4.5.0.jar:armbianio.jar IR.java
