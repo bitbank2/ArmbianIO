@@ -52,10 +52,10 @@ static AIOCALLBACK cbList[MAX_PINS];
 
 // Le potato
 static int ipotatoPins[] = {-1,-1,-1,5,-1,4,-1,108,101,-1,
-							102,-1,6,9,-1,110,103,-1,104,97,
-							-1,98,89,100,99,-1,90,85,86,106,
-							-1,107,105,95,-1,96,91,94,92,-1,
-							93};
+			102,-1,6,9,-1,110,103,-1,104,97,
+			-1,98,89,100,99,-1,90,85,86,106,
+			-1,107,105,95,-1,96,91,94,92,-1,
+			93};
 
 // Banana Pi M2 Zero
 static int iBPIZPins[] = {355,-1,-1,12,-1,11,-1,6,13,-1,
@@ -132,7 +132,7 @@ static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspbe
 static int iBoardType;
 static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,41}; // number of pins in the header
 // GPIO number of on-board IR receiver
-static int iIR_GPIO[] = {0, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static int iIR_GPIO[] = {7, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //
 // Close any open handles to GPIO pins and
