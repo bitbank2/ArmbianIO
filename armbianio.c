@@ -22,6 +22,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <fcntl.h>
@@ -38,6 +39,7 @@ static struct spi_ioc_transfer xfer;
 #define MAX_PINS IR_PIN+1
 static int iPinHandles[MAX_PINS]; // keep file handles open for GPIO access
 static AIOCALLBACK cbList[MAX_PINS];
+static AIOIRCALLBACK cbIRList[MAX_PINS];
 //
 // The following are lists which translate pin numbers into the GPIO numbers
 // used by the different boards. The first entry (0) is for the on-board
@@ -535,6 +537,117 @@ int AIORemoveGPIOCallback(int iPin)
 	cbList[iPin] = NULL; // This will force thread to exit
 	return 1;
 } /* AIORemoveGPIOCallback() */
+
+
+long getTimeInMicroseconds()
+{
+	struct timespec time_p;
+	clock_gettime(CLOCK_MONOTONIC, &time_p);
+	return (time_p.tv_sec % 10) * 1000000 + time_p.tv_nsec / 1000;
+}
+
+//
+// GPIO Monitoring thread for IR (one for each pin)
+// Code length must be less than 50.
+//
+void *GPIOIRThread(void *param)
+{
+int iPin = (int)param; // pin number is passed in
+int endOfCodeTimeOut = 3; // after 3 ms we think code has ended.
+struct pollfd fdset[1];
+char szName[32], szTemp[64];
+int gpio_fd;
+int *pPins, rc, iGPIO;
+int timeout = 3000; // 3 seconds
+long start = getTimeInMicroseconds();
+int currentCode[52];
+int codePointer = 0;
+
+	pPins = iPinLists[iBoardType];
+
+	if (iPin == IR_PIN)
+		iGPIO = iIR_GPIO[iBoardType];
+	else
+		iGPIO = pPins[iPin];
+	sprintf(szName, "/sys/class/gpio/gpio%d/value", iGPIO);
+	gpio_fd = open(szName, O_RDONLY);
+	if (gpio_fd < 0) // something went wrong
+		return NULL;
+	lseek(gpio_fd, 0, SEEK_SET);
+	rc = read(gpio_fd, szTemp, 64); // initial read to prevent false interrupt
+
+	while (1)
+	{
+		// If the callback is NULL then exit thread
+		if (cbIRList[iPin] == NULL)
+			return NULL;
+		memset(fdset, 0, sizeof(fdset));
+		fdset[0].fd = gpio_fd;
+		fdset[0].events = POLLPRI;
+		rc = poll(&fdset[0], 1, timeout);
+		if (rc < 0) return NULL;
+		// clear the interrupt by reading the data
+		lseek(gpio_fd, 0, SEEK_SET);
+		rc = read(gpio_fd, szTemp, 64);
+		// see if it was a valid interrupt event
+		if (fdset[0].revents & POLLPRI)
+		{
+			long now = getTimeInMicroseconds();
+			long between = now - start;
+//			printf("between: %11d\n", between);
+			currentCode[codePointer] = (int) between;
+			codePointer++;
+			timeout = endOfCodeTimeOut;
+			start = now;
+//			printf("cp: %d", codePointer);
+			if(codePointer > 50) { // max code length reached, send what we have.
+			    if (cbIRList[iPin])
+                    (*cbIRList[iPin])(currentCode);
+				codePointer = 0;
+				for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
+			}
+		} else if(timeout == endOfCodeTimeOut) { // are we receiving a code currently?
+            //printf("Between: %d\n", getTimeInMicroseconds() - start);
+            if (cbIRList[iPin])
+                (*cbIRList[iPin])(currentCode);
+			timeout = 3000; // wait for next code again, with the default timeout
+			codePointer = 0;
+			for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
+		} else {
+		    printf("Code timeout\n");
+		}
+	}
+	return NULL;
+} /* GPIOIRThread() */
+
+
+int AIOAddGPIOIRCallback(int iPin, AIOIRCALLBACK callback)
+{
+int *pPins;
+pthread_t tinfo;
+
+	if (iBoardType == -1) // not initialize
+		return 0;
+	pPins = iPinLists[iBoardType];
+	if (iPin != IR_PIN && pPins[iPin] == -1) // invalid pin
+		return 0;
+	cbIRList[iPin] = callback; // save the callback pointer
+	// Start a thread to manage the interrupt/callback
+	pthread_create(&tinfo, NULL, GPIOIRThread, (void *)iPin);
+	return 1;
+} /* AIOAddGPIOCallback() */
+
+
+int AIORemoveGPIOIRCallback(int iPin)
+{
+
+	if (iBoardType == -1) // not initialize
+		return 0;
+	if (cbIRList[iPin] == NULL) // invalid pin
+		return 0;
+	cbIRList[iPin] = NULL; // This will force thread to exit
+	return 1;
+} /* AIORemoveGPIOIRCallback() */
 
 //
 // Initialize a GPIO line for input or output

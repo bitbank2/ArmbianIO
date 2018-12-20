@@ -2,6 +2,7 @@ package armbianio;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 /**
  * Interface for JNA that mirrors armbianio.h.
@@ -55,8 +56,16 @@ public interface ArmbianIoLib extends Library {
 	}
 
 	int AIOAddGPIOCallback(int iPin, AIOCALLBACK callback);
-	
+
 	int AIORemoveGPIOCallback(int iPin);
+
+	interface AIOIRCALLBACK extends Callback {
+		void invoke(Pointer code) throws InterruptedException;
+	}
+
+	int AIOAddGPIOIRCallback(int iPin, AIOIRCALLBACK callback);
+
+	int AIORemoveGPIOIRCallback(int iPin);
 
 	void AIORemoveGPIO(int iPin);
 
