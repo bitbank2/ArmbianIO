@@ -122,6 +122,12 @@ static int iNPNPins[] = {-1,-1,-1,12,-1,11,-1,203,198,-1,
 			363,17,-1,-1,-1,-1,-1,-1,-1,4,
 			5};
 
+// NanoPi M4
+static int iNPM4Pins[] = {-1,-1,-1,-1,-1,-1,-1,32,145,-1,144,
+            33,50,35,-1,36,54,-1,55,-1,-1,
+            -1,56,-1,-1,-1,149,-1,-1,-1,
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+
 // Tinkerboard
 static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			160,164,184,166,-1,167,162,-1,163,257,
@@ -129,12 +135,12 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188};
 
-static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iNPNPins, iTinkerPins};
-static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "NanoPi Neo 2\n", "Tinkerboard\n",NULL};
+static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iNPNPins, iNPM4Pins, iTinkerPins};
+static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "NanoPi Neo 2\n", "NanoPi M4\n", "Tinkerboard\n",NULL};
 static int iBoardType;
-static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,41}; // number of pins in the header
+static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,41,41}; // number of pins in the header
 // GPIO number of on-board IR receiver
-static int iIR_GPIO[] = {7, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static int iIR_GPIO[] = {7, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //
 // Close any open handles to GPIO pins and
