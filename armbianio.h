@@ -28,6 +28,9 @@
 // Virtual header pin number to access the on-board IR receiver module
 // with GPIO functions (since it's just a digital input connected to a GPIO)
 #define IR_PIN 50
+#ifdef __cplusplus
+extern "C" {
+#endif
 //
 // Initialize the library
 // 1 = success, 0 = failure
@@ -172,5 +175,9 @@ int AIOWriteGPIO(int iPin, int iValue);
 // Set edge value for an open pin
 //
 int AIOWriteGPIOEdge(int iPin, int iEdge);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _ARMBIANIO_H
