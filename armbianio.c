@@ -574,7 +574,7 @@ int *pPins, rc, iGPIO;
 int timeout = 3000; // 3 seconds
 long start = getTimeInMicroseconds();
 int currentCode[52];
-int codePointer = 0;
+int i, codePointer = 0;
 
 	pPins = iPinLists[iBoardType];
 
@@ -617,7 +617,7 @@ int codePointer = 0;
 			    if (cbIRList[iPin])
                     (*cbIRList[iPin])(currentCode);
 				codePointer = 0;
-				for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
+				for(i = 0; i < 50; i++) { currentCode[i] = 0; }
 			}
 		} else if(timeout == endOfCodeTimeOut) { // are we receiving a code currently?
             //printf("Between: %d\n", getTimeInMicroseconds() - start);
@@ -625,7 +625,7 @@ int codePointer = 0;
                 (*cbIRList[iPin])(currentCode);
 			timeout = 3000; // wait for next code again, with the default timeout
 			codePointer = 0;
-			for(int i = 0; i < 50; i++) { currentCode[i] = 0; }
+			for(i = 0; i < 50; i++) { currentCode[i] = 0; }
 		} else {
 		    printf("Code timeout\n");
 		}
