@@ -72,6 +72,13 @@ static int iRPIPins[] = {-1,-1,-1,2,-1,3,-1,4,14,-1,
                         -1,9,25,11,8,-1,7,0,1,5,
                         -1,6,12,13,-1,19,16,26,20,-1,
                         21};
+static int iWiringPiPins[] = {-1,-1,-1,8,-1,9,-1,7,
+			15,-1,16,0,1,2,-1,3,
+			4,-1,5,12,-1,13,6,14,
+			10,-1,11,30,31,21,-1,22,
+			26,23,-1,24,27,25,28,-1,
+			29};
+
 
 // Orange Pi Zero Plus
 static int iOPIZPPins[] = {-1,-1,-1,12,-1,11,-1,6,198,-1,
@@ -688,6 +695,11 @@ int *pPins;
 	else
 		rc = write(file_gpio, "in\n", 3);
 	close(file_gpio);
+	if (iDirection == GPIO_IN_PULLUP) // RPI specific feature, use GPIO library
+	{
+		sprintf(szName, "gpio mode %d up", iWiringPiPins[iPin]);
+		system(szName);
+	}
 	if (rc < 0) // added to suppress compiler warnings
 	{ // do nothing
 	}

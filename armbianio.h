@@ -21,6 +21,8 @@
 //
 #define GPIO_OUT 0
 #define GPIO_IN 1
+// Only available on RPI boards
+#define GPIO_IN_PULLUP 2
 #define EDGE_FALLING 0
 #define EDGE_RISING 1
 #define EDGE_BOTH 2
