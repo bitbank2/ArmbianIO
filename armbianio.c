@@ -688,6 +688,7 @@ int *pPins;
 	sprintf(szName, "%d", iGPIO);
 	rc = write(file_gpio, szName, strlen(szName));
 	close(file_gpio);
+	usleep(250000); // allow time for udev to make the needed changes
 	sprintf(szName, "/sys/class/gpio/gpio%d/direction", iGPIO);
 	file_gpio = open(szName, O_WRONLY);
 	if (iDirection == GPIO_OUT)
