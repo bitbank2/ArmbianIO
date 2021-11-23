@@ -21,6 +21,7 @@
 //
 
 #include <unistd.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -681,6 +682,10 @@ int *pPins;
 	if (iPin == IR_PIN && iIR_GPIO[iBoardType] == 0)
 		return 0; // invalid IR pin
 	file_gpio = open("/sys/class/gpio/export", O_WRONLY);
+	if (file_gpio < 1) {
+		fprintf(stderr, "Error opening /sys/class/gpio/export = %d\n", errno);
+		return 0;
+	}
 	if (iPin == IR_PIN)
 		iGPIO = iIR_GPIO[iBoardType];
 	else
@@ -688,9 +693,13 @@ int *pPins;
 	sprintf(szName, "%d", iGPIO);
 	rc = write(file_gpio, szName, strlen(szName));
 	close(file_gpio);
-	usleep(250000); // allow time for udev to make the needed changes
+	usleep(200000); // allow time for udev to make the needed changes
 	sprintf(szName, "/sys/class/gpio/gpio%d/direction", iGPIO);
 	file_gpio = open(szName, O_WRONLY);
+	if (file_gpio < 1) {
+           fprintf(stderr, "error setting direction on GPIO pin %d\n", iGPIO);
+	   return 0;
+	}
 	if (iDirection == GPIO_OUT)
 		rc = write(file_gpio, "out\n", 4);
 	else
@@ -701,8 +710,9 @@ int *pPins;
 		sprintf(szName, "gpio mode %d up", iWiringPiPins[iPin]);
 		system(szName);
 	}
-	if (rc < 0) // added to suppress compiler warnings
-	{ // do nothing
+	if (rc < 0)
+	{
+		fprintf(stderr, "Error setting mode on GPIO pin %d\n", iGPIO);
 	}
 	return 1;
 } /* AIOAddGPIO() */
