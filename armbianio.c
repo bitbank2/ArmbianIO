@@ -143,12 +143,25 @@ static int iTinkerPins[] = {-1,-1,-1,252,-1,253,-1,17,161,-1,
 			-1,168,239,238,-1,185,223,224,187,-1,
 			188};
 
-static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins, iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iNPNPins, iNPM4Pins, iNPM4Pins, iTinkerPins};
-static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n","Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n","NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n", "NanoPi Neo 2\n", "NanoPi M4\n", "NanoPi M4V2\n", "Tinkerboard\n",NULL};
+// Radxa Zero
+static int iRadxaZeroPins[] = {-1,-1,-1,490,-1,491,-1,415,412,-1,
+                               413,414,501,503,-1,-1,502,-1,500,447,
+                               -1,448,475,450,449,-1,-1,415,414,-1,
+                               -1,-1,416,-1,-1,420,451,421,422,-1,
+                               423};
+
+static int *iPinLists[] = {ipotatoPins, iBPIZPins, iRPIPins, iOPIZPPins, iOPIZP2ins, iOPIZPins, iOPI1Pins, iOPI1Pins,
+                           iNPDPins, iNP2Pins, iNPK2Pins, iNPNPins, iNPNPins, iNPNPins, iNPM4Pins, iNPM4Pins,
+                           iTinkerPins, iRadxaZeroPins};
+static const char *szBoardNames[] = {"Le potato\n","Banana Pi M2 Zero\n","Raspberry Pi","Orange Pi Zero Plus\n",
+                                     "Orange Pi Zero Plus 2\n","Orange Pi Zero\n","Orange Pi Lite\n","Orange Pi One\n",
+                                     "NanoPi Duo\n", "NanoPi 2\n", "Nanopi K2\n", "NanoPi Neo\n", "NanoPi Air\n",
+                                     "NanoPi Neo 2\n", "NanoPi M4\n", "NanoPi M4V2\n", "Tinkerboard\n", "Radxa Zero\n",
+                                     NULL};
 static int iBoardType;
-static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,40, 41,41}; // number of pins in the header
+static int iPinCount[] = {40,40,40,29,29,29,43,43,32,40,40,40,40,40,40, 41,41, 40}; // number of pins in the header
 // GPIO number of on-board IR receiver
-static int iIR_GPIO[] = {7, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static int iIR_GPIO[] = {7, 0, 0, 363, 363, 363, 363, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //
 // Close any open handles to GPIO pins and
